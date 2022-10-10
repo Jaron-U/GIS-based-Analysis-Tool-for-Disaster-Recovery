@@ -6,3 +6,5 @@ The deliverable is a suite of ArCGIS toolkits that enable specialized operations
 
 ## Motivations
 The frequency of natural disasters has been on the uptick with catastrophic consequences for vulnerable communities. mitigating the impact of these disasters requires comprehensive analysis of a community's assets to identify critical points of failure - such as critical bridges for evacuation, low-lying regions vulnerable to flooding etc. This enables the efficient allocation of resource pre-disaster to improve that community's resilience.
+
+Origin project intro: https://eecs.oregonstate.edu/capstone/submission/pages/viewSingleProject.php?id=YAseza9mPsiwrZpo
