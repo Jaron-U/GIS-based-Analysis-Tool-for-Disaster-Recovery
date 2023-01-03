@@ -2,11 +2,32 @@
 # Filename: OverpassAreaLookup.pyt
 # Info: Creates layer of GeoJSON features from Overpass API
 
+# Looking up Area by name (gets geometry data)
+# [out:json];	
+# area[name="Oregon State University"];
+# way(area)["building"~".*"];
+# out geom;
+
+# Looking up Area by name (gets geometry data)
+# [out:json];	
+# area[name="Oregon State University"];
+# way(area)["building"~".*"];
+# out geom;
+
 import arcpy
 import requests
 from os import getcwd, path
 
-arcpy.env.
+OVERPASS_API = 'https://lz4.overpass-api.de/api/interpreter'
+
+def getOverpassData(name: str):
+    ql = '''[out:json];area["name"="{name}"];way["building"~".*"](area);out geom;'''
+    query = requests.post(OVERPASS_API, data=ql)
+    if query.status_code == 200:
+        osm_data = query.json()
+        return osm_data
+    return {'empty': True}
+
 class Toolbox(object):
     def __init__(self):
         """Define the toolbox (the name of the toolbox is the name of the
