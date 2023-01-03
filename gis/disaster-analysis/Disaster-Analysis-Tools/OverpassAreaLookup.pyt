@@ -2,18 +2,8 @@
 # Filename: OverpassAreaLookup.pyt
 # Info: Creates layer of GeoJSON features from Overpass API
 
-# Looking up Area by name (gets geometry data)
-# [out:json];	
-# area[name="Oregon State University"];
-# way(area)["building"~".*"];
-# out geom;
-
-# Looking up Area by name (gets geometry data)
-# [out:json];	
-# area[name="Oregon State University"];
-# way(area)["building"~".*"];
-# out geom;
-
+import osm2geojson
+import tempfile
 import arcpy
 import requests
 from os import getcwd, path
@@ -30,9 +20,8 @@ def getOverpassData(name: str):
 
 class Toolbox(object):
     def __init__(self):
-        """Define the toolbox (the name of the toolbox is the name of the
-        .pyt file)."""
-        self.label = "Toolbox"
+        """Define the toolbox (the name of the toolbox is the name of the .pyt file)."""
+        self.label = "Overpass Area Look-Up"
         self.alias = "toolbox"
 
         # List of tool classes associated with this toolbox
@@ -53,9 +42,9 @@ class Tool(object):
         # then produces a map layer of GeoJSON features.
         params = [
             arcpy.Parameter(
-                displayName="OpenStreetMaps ID",
-                name="osm_id",
-                datatype="GPLong",
+                displayName="OpenStreetMaps Relation Name",
+                name="osm_name",
+                datatype="GPString",
                 parameterType="Required",
                 direction="Input"
             ),
@@ -93,13 +82,16 @@ class Tool(object):
 
     def execute(self, parameters, messages):
         """The source code of the tool."""
-        osm_id = parameters[0].valueAsText
+        osm_area_name = parameters[0].valueAsText
         arcgis_map = parameters[1].value # should be an ArcGIS Map object
-        # Create Layer
-        # Name will get derived from osm_id for the layer
-
-        # arcpy.management.MakeFeatureLayer
-
+        jsonData = getOverpassData(osm_area_name)
+        if len(jsonData) > 1:
+            # We'll potentially need to create a temp file and then delete it.
+            # This is because arcpy doesn't understand how to make a non-file-facing
+            # interface or API.
+            with tempfile.NamedTemporaryFile() as tmp:
+                tmp.write(jsonData)
+                features = arcpy.conversion.JSONToFeatures(tmp, f"OSM {arcgis_map}")
         return
 
     def postExecute(self, parameters):

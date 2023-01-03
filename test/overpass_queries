@@ -1,0 +1,5 @@
+# Looking up Area by name (gets geometry data)
+[out:json];	
+area[name="Oregon State University"];
+way(area)["building"~".*"];
+out geom;
