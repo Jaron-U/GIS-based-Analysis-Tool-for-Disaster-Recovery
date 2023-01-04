@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?><messages><msg code="0" type="2">Start Time: Tuesday, January 3, 2023 2:58:40 PM</msg><msg code="1" type="100">Traceback (most recent call last):
+  File "&lt;string&gt;", line 98, in execute
+  File "C:\Program Files\ArcGIS\Pro\Resources\ArcPy\arcpy\conversion.py", line 1171, in JSONToFeatures
+    raise e
+  File "C:\Program Files\ArcGIS\Pro\Resources\ArcPy\arcpy\conversion.py", line 1168, in JSONToFeatures
+    retval = convertArcObjectToPythonObject(gp.JSONToFeatures_conversion(*gp_fixargs((in_json_file, out_features, geometry_type), True)))
+  File "C:\Program Files\ArcGIS\Pro\Resources\ArcPy\arcpy\geoprocessing\_base.py", line 512, in &lt;lambda&gt;
+    return lambda *args: val(*gp_fixargs(args, True))
+arcgisscripting.ExecuteError: Failed to execute. Parameters are not valid.
+ERROR 000814: Invalid file type
+Failed to execute (JSONToFeatures).
+
+</msg><msg code="-2147467259" type="100">Failed to execute (Tool).</msg><msg code="0" type="3">Failed at Tuesday, January 3, 2023 2:59:04 PM (Elapsed Time: 23.96 seconds)</msg></messages>

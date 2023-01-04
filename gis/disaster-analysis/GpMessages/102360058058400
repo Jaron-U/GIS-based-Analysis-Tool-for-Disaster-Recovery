@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?><messages><msg code="0" type="2">Start Time: Tuesday, January 3, 2023 9:51:38 PM</msg><msg code="1" type="100">Traceback (most recent call last):
+  File "&lt;string&gt;", line 106, in execute
+  File "C:\Users\Milan Donhowe\AppData\Local\ESRI\conda\envs\arcgispro-py3-clone\lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 2317-2319: character maps to &lt;undefined&gt;
+</msg><msg code="-2147467259" type="100">Failed to execute (Tool).</msg><msg code="0" type="3">Failed at Tuesday, January 3, 2023 9:52:04 PM (Elapsed Time: 25.98 seconds)</msg></messages>

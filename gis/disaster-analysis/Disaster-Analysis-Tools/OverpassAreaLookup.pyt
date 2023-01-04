@@ -2,20 +2,32 @@
 # Filename: OverpassAreaLookup.pyt
 # Info: Creates layer of GeoJSON features from Overpass API
 
-import osm2geojson
-import tempfile
 import arcpy
-import requests
+from osm2geojson import json2geojson
+from geojson_rewind import rewind
+from requests import post
 from os import getcwd, path
+import json
+import importlib
+
 
 OVERPASS_API = 'https://lz4.overpass-api.de/api/interpreter'
 
-def getOverpassData(name: str):
-    ql = '''[out:json];area["name"="{name}"];way["building"~".*"](area);out geom;'''
-    query = requests.post(OVERPASS_API, data=ql)
+#def getOverpassData(name: str):
+#    ql = '''[out:json];area["name"="{name}"];way["building"~".*"](area);out geom;'''
+#    query = post(OVERPASS_API, data=ql)
+#    if query.status_code == 200:
+#        osm_data = query.json()
+#        return osm_data
+#    return {'empty': True}
+
+def getOverpassData(id: int):
+    #ql = f'''[out:json];way(area:{id})["building"~".*"];out geom;'''
+    # sanity test
+    ql = '[out:json];way(area:3605969826)["name"~"Cordley Hall"];out geom;'
+    query = post(OVERPASS_API, data=ql)
     if query.status_code == 200:
-        osm_data = query.json()
-        return osm_data
+        return query.text
     return {'empty': True}
 
 class Toolbox(object):
@@ -42,9 +54,9 @@ class Tool(object):
         # then produces a map layer of GeoJSON features.
         params = [
             arcpy.Parameter(
-                displayName="OpenStreetMaps Relation Name",
-                name="osm_name",
-                datatype="GPString",
+                displayName="OpenStreetMaps Relation ID",
+                name="osm_id",
+                datatype="GPLong",
                 parameterType="Required",
                 direction="Input"
             ),
@@ -82,16 +94,20 @@ class Tool(object):
 
     def execute(self, parameters, messages):
         """The source code of the tool."""
-        osm_area_name = parameters[0].valueAsText
+        osm_rel_id = int(parameters[0].valueAsText)+3600000000
         arcgis_map = parameters[1].value # should be an ArcGIS Map object
-        jsonData = getOverpassData(osm_area_name)
-        if len(jsonData) > 1:
+        JSON_data = getOverpassData(osm_rel_id)
+        print("Fetched JSON_data of length", len(JSON_data))
+        if not 'empty' in JSON_data:
             # We'll potentially need to create a temp file and then delete it.
             # This is because arcpy doesn't understand how to make a non-file-facing
             # interface or API.
-            with tempfile.NamedTemporaryFile() as tmp:
-                tmp.write(jsonData)
-                features = arcpy.conversion.JSONToFeatures(tmp, f"OSM {arcgis_map}")
+            geo_JSON = json2geojson(JSON_data)
+            # Create feature class in memory
+            filePath = path.join(arcpy.env.workspace, f"{osm_rel_id}.geojson")
+            with open(filePath, "w+", encoding='utf-8') as geo_JSON_file:
+                geo_JSON_file.write(rewind(json.dumps(geo_JSON)))
+            arcpy.conversion.JSONToFeatures(filePath, f"OSM_{arcgis_map}", "polygon")
         return
 
     def postExecute(self, parameters):

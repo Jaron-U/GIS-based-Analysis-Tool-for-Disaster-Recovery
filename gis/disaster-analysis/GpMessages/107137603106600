@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?><messages><msg code="0" type="2">Start Time: Tuesday, January 3, 2023 11:11:16 PM</msg><msg code="1" type="100">Traceback (most recent call last):
+  File "&lt;string&gt;", line 107, in execute
+  File "C:\Users\Milan Donhowe\AppData\Local\ESRI\conda\envs\arcgispro-py3-clone\lib\site-packages\geojson_rewind\rewind.py", line 12, in rewind
+    return json.dumps(_rewind(json.loads(gj), rfc7946))
+  File "C:\Users\Milan Donhowe\AppData\Local\ESRI\conda\envs\arcgispro-py3-clone\lib\json\__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+  File "C:\Users\Milan Donhowe\AppData\Local\ESRI\conda\envs\arcgispro-py3-clone\lib\json\decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+  File "C:\Users\Milan Donhowe\AppData\Local\ESRI\conda\envs\arcgispro-py3-clone\lib\json\decoder.py", line 353, in raw_decode
+    obj, end = self.scan_once(s, idx)
+json.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+</msg><msg code="-2147467259" type="100">Failed to execute (Tool).</msg><msg code="0" type="3">Failed at Tuesday, January 3, 2023 11:11:40 PM (Elapsed Time: 24.73 seconds)</msg></messages>

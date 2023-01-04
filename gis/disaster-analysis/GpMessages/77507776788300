@@ -1,0 +1,4 @@
+﻿<?xml version="1.0" encoding="utf-8"?><messages><msg code="0" type="2">Start Time: Tuesday, January 3, 2023 2:57:26 PM</msg><msg code="1" type="100">Traceback (most recent call last):
+  File "&lt;string&gt;", line 97, in execute
+TypeError: write() argument must be str, not dict
+</msg><msg code="-2147467259" type="100">Failed to execute (Tool).</msg><msg code="0" type="3">Failed at Tuesday, January 3, 2023 2:57:48 PM (Elapsed Time: 22.40 seconds)</msg></messages>
