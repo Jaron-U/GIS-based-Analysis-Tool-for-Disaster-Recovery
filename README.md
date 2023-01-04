@@ -2,8 +2,7 @@
 This project involves the creation of GIS tools to analysis community preparedness for disasters to identify vulnerabilities for planning purposes. Specifically, the students will use python and other scripting tools to analysis geospatial datasets to identify critical pieces of infrastructure that must be bolstered and strengthened to improve community resilience and recovery after disasters.
 
 ## Project Layout
-ArcGIS Pro project located under `gis` directory with python toolboxes under the `gis/disaster-analysis/Disaster-Analysis-Tools` directory.
-
+TODO
 
 ## Objectives
 The deliverable is a suite of ArCGIS toolkits that enable specialized operations upon multiple heterogenous datasets. The datasets are already collected, and the team will focus on user interfaces to enable users to perform basic geospatial operations upon. A particular focus will also be on developing novel user interaction capabilities by providing users the ability to interact with the data using tangible interfaces such as AR markers and augmented reality sandboxes.
