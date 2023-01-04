@@ -22,9 +22,7 @@ OVERPASS_API = 'https://lz4.overpass-api.de/api/interpreter'
 #    return {'empty': True}
 
 def getOverpassData(id: int):
-    #ql = f'''[out:json];way(area:{id})["building"~".*"];out geom;'''
-    # sanity test
-    ql = '[out:json];way(area:3605969826)["name"~"Cordley Hall"];out geom;'
+    ql = f'''[out:json];way(area:{id})["building"~".*"];out geom;'''
     query = post(OVERPASS_API, data=ql)
     if query.status_code == 200:
         return query.text
@@ -105,6 +103,7 @@ class Tool(object):
             geo_JSON = json2geojson(JSON_data)
             # Create feature class in memory
             filePath = path.join(arcpy.env.workspace, f"{osm_rel_id}.geojson")
+            
             with open(filePath, "w+", encoding='utf-8') as geo_JSON_file:
                 geo_JSON_file.write(rewind(json.dumps(geo_JSON)))
             arcpy.conversion.JSONToFeatures(filePath, f"OSM_{arcgis_map}", "polygon")
