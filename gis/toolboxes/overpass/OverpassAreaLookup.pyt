@@ -66,6 +66,13 @@ class Tool(object):
                 direction="Input"
             ),
             arcpy.Parameter(
+                displayName="Layer Name",
+                name="later_name",
+                datatype="GPString",
+                parameterType="Required",
+                direction="Input"
+            ),
+            arcpy.Parameter(
                 displayName="Feature Layer",
                 name="osm_layer",
                 datatype="GPFeatureLayer",
@@ -92,21 +99,51 @@ class Tool(object):
 
     def execute(self, parameters, messages):
         """The source code of the tool."""
+        # Uses overpass areas which require id offset of 3600000000
         osm_rel_id = int(parameters[0].valueAsText)+3600000000
-        arcgis_map = parameters[1].value # should be an ArcGIS Map object
+
+        # get ArcGIS Map object
+        map_name = parameters[1].valueAsText
+        proj = arcpy.mp.ArcGISProject("CURRENT")
+        arcgis_map = list(filter(lambda map: map.name == map_name, proj.listMaps()))[0]
+
+        messages.addMessage(f"Fetching OSM data for relation id={osm_rel_id}")
         JSON_data = getOverpassData(osm_rel_id)
-        print("Fetched JSON_data of length", len(JSON_data))
+        messages.addMessage(f"Fetched {len(JSON_data)} bytes of JSON data.")
         if not 'empty' in JSON_data:
-            # We'll potentially need to create a temp file and then delete it.
-            # This is because arcpy doesn't understand how to make a non-file-facing
-            # interface or API.
             geo_JSON = json2geojson(JSON_data)
-            # Create feature class in memory
-            filePath = path.join(arcpy.env.workspace, f"{osm_rel_id}.geojson")
+
+            # Only include Polygon type features (precautionary measure, maybe not needed)
+            filtered_features = []
+            for index, feat in enumerate(geo_JSON['features']):
+                #geo_JSON['features'][index]['properties'] = {}
+                if feat['geometry']['type'] == 'Polygon':
+                    filtered_features.append(geo_JSON['features'][index])
+            geo_JSON['features'] = filtered_features
+
+            # Make sure we're not writing the geojson file within a geodatabase
+            # This will result in the JSONToFeatures call failing if our geojson file
+            # is within a geodatabase (not sure why)
+            workspace, dir = path.split(arcpy.env.workspace)
+            if not dir.endswith('.gdb'):
+                workspace = arcpy.env.workspace
+
+            # Write GeoJSON to file
+            file_name = f"{osm_rel_id}.geojson"
+            file_path = path.join(workspace, file_name)
+            with open(file_path, "w+", encoding='utf-8') as geo_JSON_file:
+                geo_JSON_file.write(rewind(json.dumps(geo_JSON, ensure_ascii=False)))
             
-            with open(filePath, "w+", encoding='utf-8') as geo_JSON_file:
-                geo_JSON_file.write(rewind(json.dumps(geo_JSON)))
-            arcpy.conversion.JSONToFeatures(filePath, f"OSM_{arcgis_map}", "polygon")
+            messages.addMessage("Converting GeoJSON data to Feature Layer File...")
+            # Load GeoJSON file as feature layer in ArcGIS Pro
+            layer_file_path = path.join(arcpy.env.workspace, parameters[2].valueAsText)
+            arcpy.conversion.JSONToFeatures(file_path, layer_file_path, "POLYGON")
+
+            # Attach to Map!
+            messages.addMessage("Inserting Feature Layer into map...")
+            arcgis_map.addDataFromPath(layer_file_path)
+
+            messages.addMessage("Done!")
         return
 
     def postExecute(self, parameters):
