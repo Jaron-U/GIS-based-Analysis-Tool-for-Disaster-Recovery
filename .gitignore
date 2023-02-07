@@ -1,2 +1,3 @@
 .pyHistory
 .backups/
+__pycache__
