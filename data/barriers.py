@@ -4,7 +4,6 @@ import json
 def generateBarriers(wkid=None):
     features = []
     # TODO: change well known id of spatial reference if wkid is defined
-    
     return json.dumps(features)
 
 def generatePolygon(objectId=None, name=None):

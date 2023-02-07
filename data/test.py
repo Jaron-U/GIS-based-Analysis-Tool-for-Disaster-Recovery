@@ -13,6 +13,8 @@ class TestRouteApi(unittest.TestCase):
 
     def barrier_reactive(self):
         """Barrier polygon should change route"""
+        barriers = []
+        
         pass
 
 if __name__ == '__main__':

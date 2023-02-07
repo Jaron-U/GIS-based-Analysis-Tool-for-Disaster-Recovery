@@ -49,9 +49,29 @@ def getRoute(stops, startTime="now", directions=False, language="en"):
   return _sendRequest(route_endpoint, payload)
 
 
-def parseESRI():
+def fromESRIToGeoJson(ersi):
+  """Given ESRI JSON string, return GeoJSON FeatureCollection"""
+  esri = json.loads(esri)
   pass
 
-def parseGeoJSON():
-  pass
+def fromGeoJSONToESRI(geojson: str):
+  """Given GeoJSON FeatureCollection string return ArcGIS-api friendly geometry list"""
+  geojson = json.loads(geojson)
+  # validate geojson text
+  if not 'type' in geojson:
+    raise KeyError("GeoJSON lacks type attribute")
+  if geojson['type'] != 'FeatureCollection':
+    raise KeyError(f"Unsupported GeoJSON type '{geojson['type']}'")
+  if not 'features' in geojson:
+    raise KeyError("GeoJSON FeatureCollection should have \'features\' array")
+  # convert geojson -> esri json
+  geometry = []
+  for feature in geojson['features']:
+    if 'geometry' in feature:
+      shape = {}
+      if feature['geometry']['type'] == 'Polygon':
+        shape = {'geometry': {'rings': feature['geometry']['coordinates']}}
+        # TODO: make sure right-hand rule is obeyed
+    geometry.append(shape)
+  return geometry
 
