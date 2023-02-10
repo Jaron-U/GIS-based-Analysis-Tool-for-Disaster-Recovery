@@ -68,6 +68,14 @@ def getRoute(stops, barrierPolygons=None, startTime="now", directions=False, lan
 #  data['routes'][''] = response['features']
 #  data['']
 
+def ESRIJsonFromResponse(response_text):
+  res = json.loads(response_text)
+  esri_json = {}
+  esri_join['geometryType'] = res['routes']['geometryType']
+  esri_join['spatialReference'] = res['routes']['spatialReference']
+  esri_join['features'] = res['routes']['features']
+  return json.dumps(esri_json)
+
 
 def fromESRIToGeoJson(ersi_response):
   """Given ESRI JSON string, return GeoJSON FeatureCollection"""
