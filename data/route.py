@@ -26,7 +26,6 @@ def _sendRequest(endpoint, params):
   global token
   payload = params
   payload['token'] = token
-  print(payload)
   response = requests.get(endpoint, params=payload)
   return response
 
@@ -71,9 +70,9 @@ def getRoute(stops, barrierPolygons=None, startTime="now", directions=False, lan
 def ESRIJsonFromResponse(response_text):
   res = json.loads(response_text)
   esri_json = {}
-  esri_join['geometryType'] = res['routes']['geometryType']
-  esri_join['spatialReference'] = res['routes']['spatialReference']
-  esri_join['features'] = res['routes']['features']
+  esri_json['geometryType'] = res['routes']['geometryType']
+  esri_json['spatialReference'] = res['routes']['spatialReference']
+  esri_json['features'] = res['routes']['features']
   return json.dumps(esri_json)
 
 

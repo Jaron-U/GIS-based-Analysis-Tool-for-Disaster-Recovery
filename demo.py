@@ -1,7 +1,7 @@
 # Demo for python API integration for 2/10/23
 
 # our custom Python Package
-from data.route import setEndpoint, setToken, getRoute, fromGeoJSONToESRI
+from data.route import setEndpoint, setToken, getRoute, fromGeoJSONToESRI, ESRIJsonFromResponse
 import json
 
 setToken('API-KEY-HERE')
@@ -28,7 +28,7 @@ if route.status_code == 200:
         exit(0)
     # esri_data = route.json()
     with open("route.json", "w+") as result:
-        result.write(route.text)
+        result.write(ESRIJsonFromResponse(route.text))
 else:
     print("Response code:", route.status_code)
     print(route.text())
