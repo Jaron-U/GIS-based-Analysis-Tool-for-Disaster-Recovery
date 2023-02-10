@@ -1,10 +1,9 @@
 # ArcGIS Pro Routing Service API wrapper
-
 import requests
+import json
 
 # module-wide variables
-token = 'f4LJ3-kW7SL1Je6dCPaxXmlOcGWWU4kVYHRG8XxVQ60-D1kmf9Sve9gv7QdRWXXRmX0L658PeTor1v3VnyY258UjgSpufj07FtZAembY-ifoRsJ7aZx2MnyuP_dBDOgpXd5nNEj1NQFO7L9BJD496A..'
-route_endpoint = 'https://route.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World/solve?'
+token = ''
 route_endpoint = 'https://utility.arcgis.com/usrsvcs/appservices/9SL1kSqVl46ogIsh/rest/services/World/Route/NAServer/Route_World'
 
 def ping():
@@ -14,13 +13,20 @@ def ping():
   response = getRoute(stops)
   return response
 
+def setToken(s):
+  global token
+  token = s
+
 def setEndpoint(api):
+  global route_endpoint
   route_endpoint = api
 
 def _sendRequest(endpoint, params):
   """Sends HTTP GET request to endpoint with parameters dictionary"""
+  global token
   payload = params
   payload['token'] = token
+  print(payload)
   response = requests.get(endpoint, params=payload)
   return response
 
@@ -32,8 +38,9 @@ def listTravelModes():
 
 # Stops should be a list [(lat, lng), (lng,lat)]
 # Use: https://www.latlong.net/ as sanity test for longitude/latitude
-def getRoute(stops, startTime="now", directions=False, language="en"):
+def getRoute(stops, barrierPolygons=None, startTime="now", directions=False, language="en"):
   """Returns route from A->B"""
+  global route_endpoint
 
   stops = ";".join([f'{lat},{lng}' for lat, lng in stops])
 
@@ -41,18 +48,48 @@ def getRoute(stops, startTime="now", directions=False, language="en"):
     "f": "json",
     "language": language,
     "startTime": startTime,
-    "stops": stops
+    "stops": stops,
+    "directions": "False"
   }
+
+  if barrierPolygons:
+    # polygon barriers need to be encoded as JSON objects
+    payload['polygonBarriers'] = json.dumps(barrierPolygons)
+
   if directions:
     payload['directions'] = "True"
-
+  
   return _sendRequest(route_endpoint, payload)
 
 
-def fromESRIToGeoJson(ersi):
+#def parseAPIResponse(response: dict):
+#  """Given response json dict return trimmed json object ArcGIS Pro can natively import"""
+#  data = {}
+#  data['routes'][''] = response['features']
+#  data['']
+
+
+def fromESRIToGeoJson(ersi_response):
   """Given ESRI JSON string, return GeoJSON FeatureCollection"""
-  esri = json.loads(esri)
-  pass
+  response_dict = json.loads(ersi_response)
+  templateDict = {
+    "type": "FeatureCollection",
+    "features": [{
+      "type": "Feature",
+      "geometry": {
+          "type": "LineString",
+          "coordinates": []
+      },
+      "properties": {}
+    }]
+  }
+  # get the road data we need
+  new_coordinates = response_dict['routes']['features'][0]['geometry']['paths'][0]
+  geometry = templateDict["features"][0]['geometry']
+  # put the road data input the geojson style text
+  geometry['coordinates'] = new_coordinates
+  return templateDict
+
 
 def fromGeoJSONToESRI(geojson: str):
   """Given GeoJSON FeatureCollection string return ArcGIS-api friendly geometry list"""
@@ -70,7 +107,7 @@ def fromGeoJSONToESRI(geojson: str):
     if 'geometry' in feature:
       shape = {}
       if feature['geometry']['type'] == 'Polygon':
-        shape = {'geometry': {'rings': feature['geometry']['coordinates']}}
+        shape = {'geometry': {'rings': feature['geometry']['coordinates']}, 'attributes':{"Name":"Barrier","BarrierType":0}}
         # TODO: make sure right-hand rule is obeyed
     geometry.append(shape)
   return geometry
