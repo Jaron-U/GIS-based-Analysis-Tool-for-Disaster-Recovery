@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="13215efb-f83f-4ba7-b839-28d5b8182c21" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/data/clp.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/clp.py" afterDir="false" />
-    </list>
+    <list default="true" id="13215efb-f83f-4ba7-b839-28d5b8182c21" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -13,6 +11,7 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectId" id="2JvfG2kmLIUbCnfRRDaVhwe7hWb" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
