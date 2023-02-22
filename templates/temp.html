@@ -1,8 +1,8 @@
 <html>
     <head>
         <title> Test </title>
-        <link rel="stylesheet" type="text/css" href="css/temp.css" />
-        <link rel="stylesheet" href="leaflet/leaflet.css" />
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/temp.css') }}" />
+        <link rel="stylesheet" href="{{ url_for('static', filename='leaflet/leaflet.css') }}" />
         
         <script>
             function fetchJSON(url) {
@@ -23,7 +23,7 @@
         <h1> Directions: </h1>
         <p>To be implemented (maybe)</p>
         
-        <script src="leaflet/leaflet.js"></script>
+        <script src="/static/leaflet/leaflet.js"></script>
         <script>
             var map = L.map('map').setView([30, 11], 3);
             
