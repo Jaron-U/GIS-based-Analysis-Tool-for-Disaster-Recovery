@@ -1,0 +1,42 @@
+<html>
+    <head>
+        <title> Test </title>
+        <link rel="stylesheet" type="text/css" href="css/temp.css" />
+        <link rel="stylesheet" href="leaflet/leaflet.css" />
+        
+        <script>
+            function fetchJSON(url) {
+              return fetch(url)
+                .then(function(response) {
+                  return response.json();
+                });
+            }
+        </script>
+    </head>
+    
+    <body>
+        <h1> GISDR template webpage </h1>
+        <p>Where do you need to go?</p>
+        
+        <div id="map"></div>
+        
+        <h1> Directions: </h1>
+        <p>To be implemented (maybe)</p>
+        
+        <script src="leaflet/leaflet.js"></script>
+        <script>
+            var map = L.map('map').setView([30, 11], 3);
+            
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            }).addTo(map);
+            
+            fetchJSON('https://raw.githubusercontent.com/johnkcOSU/test-repo/main/test.geojson')
+            .then(function(data) {
+                console.log(data);
+                L.geoJSON(data).addTo(map);
+            })
+        </script>
+    </body>
+</html>
