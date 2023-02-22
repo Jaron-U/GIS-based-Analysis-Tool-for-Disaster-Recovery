@@ -1,42 +1,73 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
     <head>
-        <title> Test </title>
+        <meta charset='utf-8'>
+        <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+        <title> OpenStreetMap Test </title>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/temp.css') }}" />
-        <link rel="stylesheet" href="{{ url_for('static', filename='leaflet/leaflet.css') }}" />
-        
-        <script>
-            function fetchJSON(url) {
-              return fetch(url)
-                .then(function(response) {
-                  return response.json();
-                });
-            }
-        </script>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+        <script src='static/js/mapTemp.js'></script>
     </head>
     
     <body>
-        <h1> GISDR template webpage </h1>
-        <p>Where do you need to go?</p>
+        <header>
+            <h1> GISDR template webpage </h1>
+            <p>text here</p>
+        </header>
         
-        <div id="map"></div>
-        
-        <h1> Directions: </h1>
-        <p>To be implemented (maybe)</p>
-        
-        <script src="/static/leaflet/leaflet.js"></script>
-        <script>
-            var map = L.map('map').setView([30, 11], 3);
-            
-            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            }).addTo(map);
-            
-            fetchJSON('https://raw.githubusercontent.com/johnkcOSU/test-repo/main/test.geojson')
-            .then(function(data) {
-                console.log(data);
-                L.geoJSON(data).addTo(map);
-            })
-        </script>
+        <main>
+            <section>
+                <h2>Get Input:</h2>
+                <article>
+                    <form id="route">
+                    <label for="originLat" class="required">Origin lat and lot</label>
+                        <input 
+                            type="text"
+                            name="originLat" id="originLat"
+                            required
+                            placeholder="lat: 123.23"
+                            autofocus />
+                    <label for="originLot" class="required"></label>
+                        <input 
+                            type="text"
+                            name="originLot" id="originLot"
+                            required
+                            placeholder="lot: 123.00"
+                            />
+
+                     <label for="destinationLat" class="required">Destination lat and lot</label>
+                        <input 
+                            type="text"
+                            name="destinationLat" id="destinationLat"
+                            required
+                            placeholder="lat: 123.23"
+                            />
+                    <label for="destinationLot" class="required"></label>
+                        <input 
+                            type="text"
+                            name="destinationLot" id="destinationLot"
+                            required
+                            placeholder="lot: 123.23"
+                            />
+                    
+                    <p>
+                        <button type="submit" id="submit" value="get the route">GetRoute</button>
+                    </p>
+
+                    <!-- <h1> Directions: </h1>
+                    <p>To be implemented (maybe)</p> -->
+                
+                    <div id="map"></div>
+                    <script src='static/js/mapTemp.js'></script>
+
+                    <tbody id="output"></tbody>
+                    </form>
+                </article>
+            </section>
+        </main>
+        <footer>
+            <p><cite>&copy; 2023 GIS-Project</cite></p>
+        </footer>
     </body>
 </html>
