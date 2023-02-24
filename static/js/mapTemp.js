@@ -1,6 +1,6 @@
 'use strict'
 
-document.addEventListener('DOMContentLoaded', bind())
+document.addEventListener('DOMContentLoaded', bind)
 
 function bind() {
         var map = L.map('map').setView([30, 11], 3);
@@ -9,27 +9,30 @@ function bind() {
                 attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(map);
 
-        document.getElementById('route').addEventListener('submit', 
-                getRoute())
+        document.getElementById('submit').addEventListener('click', 
+        getRoute)
 
         // L.geoJSON(geojsonFeature).addTo(map)
 }
 
 
-function getRoute() {
-        console.log(1111)
-        var oLat = document.getElementById('originLat').value;
-        console.log(oLat)
-        console.log(typeof(oLat))
-        var oLot = document.getElementById('originLot').value;
-        var dLat = document.getElementById('destinationLat').value;
-        var dLot = document.getElementById('destinationLot').value;
-        const url = new URL(`/route/${oLat}`, window.location.origin);
-        // url.pathname += `${oLat}/${oLot}/${dLat}/${dLot}`;
-        // url.pathname += `${oLat}`;
-        const response = fetch(url);
-        const data = response.json();
-        console.log(data)
+function convert2Float(num) {
+        num = parseFloat(num);
+        if (typeof num === 'number' && num % 1 === 0) {
+                num = num.toFixed(1)
+        }
+        return num
+}
+
+async function getRoute() {
+        var oLat = convert2Float(document.getElementById('originLat').value);
+        var oLnt = convert2Float(document.getElementById('originLnt').value);
+        var dLat = convert2Float(document.getElementById('destinationLat').value);
+        var dLnt = convert2Float(document.getElementById('destinationLnt').value);
+        const url = new URL(`/route`, window.location.origin);
+        url.pathname += `/${oLat}/${oLnt}/${dLat}/${dLnt}`;
+        const response = await fetch(url);
+        const data = await response.json();
         var output = document.getElementById('output')
         output.innerHTML = JSON.stringify(data);
 }

@@ -11,12 +11,10 @@ def index():
 	return render_template("temp.html")
 
 # TODO ADD ROUTE FOR GETTING DIRECTIONS FROM STOPS GIVEN GEOJSON PARAMETER
-# @app.route('/route/<float:oLat>/<float:oLot>/<float:dLat>/<float:dLot>')
-@app.route('/route/<string:oLat>')
-def findRoute(oLat):
-	# result = await (oLat+oLot+dLat+dLot)
-	result = "testtest" + oLat
-	return jsonify(result)
+@app.route('/route/<float:oLat>/<float:oLnt>/<float:dLat>/<float:dLnt>')
+def findRoute(oLat, oLnt, dLat, dLnt):
+    result = {"origin" : [oLnt, oLat], "destination": [dLnt, dLat]}
+    return result;
 
 # TODO ADD ROUTE FOR CLOSEST FACILITIES
 @app.route("/closest")
