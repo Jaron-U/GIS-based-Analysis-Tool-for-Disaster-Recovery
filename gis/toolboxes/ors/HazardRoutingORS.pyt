@@ -4,6 +4,7 @@ import arcpy
 import json
 import requests
 from os import path
+from string import printable
 
 class Toolbox(object):
     def __init__(self):
@@ -88,6 +89,9 @@ class Tool(object):
         # access project resources
         proj = arcpy.mp.ArcGISProject("CURRENT")
         arcgis_map = list(filter(lambda map: map.name == map_name, proj.listMaps()))[0]
+        messages.addMessage("Finding barrier layer named  \"" + barriers + "\"")
+        if '\\' in barriers:
+            barriers = barriers.split('\\')[-1]
         barrier_layer = list(filter(lambda layer: layer.name == barriers, arcgis_map.listLayers()))[0]
 
         # Write as GeoJSON
@@ -124,19 +128,46 @@ class Tool(object):
 
         response_data = response.json()
 
+        messages.addMessage(response_data)
+
         if 'error' in response_data:
             messages.addMessage("Error returned from API:")
             messages.addMessage(response_data)
             return
 
+        output_polyline = response_data['features'][0]['geometry']
+        # NOTE: Although ESRI docs claim JSONtoFeatures cannot accept LineString, it actually does
+        # accept this geometry for GeoJSON.  In fact, changing this to a "Polyline" breaks the parser
+        # either due to bad formatting or some strange Arcpy bug.
+        output_polyline['type'] = 'LineString'
+
+        # convert to geojson subset that ArcGIS Pro accepts
+        geojson_template = {
+            "type": "FeatureCollection",
+            "features":[{
+                "type": "Feature",
+                "geometry": output_polyline
+            }]
+        }
+
+        # ArcGIS Pro doesn't accept layers with names including non-alphabetic characters (for some reason)
+        # so we need to "filter out" illegal characters in the layer name.
+        output_name = ""
+        for char in barrier_layer.name:
+            if char in printable[10:62]:
+                output_name += char
+
+        
         # write result as json we can import
-        output_json_filename = path.join(workspace, barrier_layer.name + "_Route.geojson")
+        output_json_filename = path.join(workspace, output_name + "_Route.geojson")
         with open(output_json_filename, "w+", encoding="utf-8") as f:
-            f.write(json.dumps(response_data))
+            f.write(json.dumps(geojson_template))
         
         # This final step should load the layer into the map
-        route_layer_path = path.join(arcpy.env.workspace, barrier_layer.name+"Route")
-        arcpy.conversion.JSONToFeatures(output_json_filename, route_layer_path)
+        route_layer_path = path.join(arcpy.env.workspace, output_name+"Route")
+        messages.addMessage("Created GeoJSON file at: " + output_json_filename)
+        messages.addMessage("Creating feature layer file at: " + route_layer_path)
+        arcpy.conversion.JSONToFeatures(output_json_filename, route_layer_path, geometry_type="Polyline")
         arcgis_map.addDataFromPath(route_layer_path)
         messages.addMessage("Done!")
         return

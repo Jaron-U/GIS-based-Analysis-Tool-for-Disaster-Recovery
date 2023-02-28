@@ -91,9 +91,9 @@ class Tool(object):
         barrier_layer = list(filter(lambda layer: layer.name == barriers, arcgis_map.listLayers()))[0]
 
         # Write as ESRI json
-        arcpy.conversion.FeaturesToJSON(barrier_layer, "barrier_layer.json", geoJSON=False, outputToWGS84=True)
+        arcpy.conversion.FeaturesToJSON(barrier_layer, path.join(workspace, "barrier_layer.json"), geoJSON=False, outputToWGS84=True)
         # open the barrier layer
-        with open("barrier_layer.json", "r", encoding='utf-8') as f:
+        with open(path.join(workspace, "barrier_layer.json"), "r", encoding='utf-8') as f:
             feature_data = json.loads(f.read())
         
         # perform API call
