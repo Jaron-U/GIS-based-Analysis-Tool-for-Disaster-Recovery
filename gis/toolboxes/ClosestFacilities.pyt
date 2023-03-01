@@ -9,6 +9,7 @@ import http
 import requests
 import datetime
 import arcgis
+import json
 import pandas as pd
 
 
@@ -134,6 +135,7 @@ class Tool(object):
         facilities = parameters[3].valueAsText
         facilitiesWhereClause = parameters[4].valueAsText
 
+        messages.addMessage("parameter loaded")
         # creating pathing
         scriptsPath = os.getcwd()
         projectPath = os.path.join(os.path.dirname(scriptsPath), "Projects", "GADEP")
@@ -143,7 +145,7 @@ class Tool(object):
         incidentsFiltered = os.path.join(gadepPath,"IncidentsFiltered")
         facilitiesFiltered = os.path.join(gadepPath,"FacilitiesFiltered")
 
-        # using sql to filter
+        # using sql to filter the feature layers
         arcpy.Select_analysis(incidents, incidentsFiltered, incidentsWhereClause)
         arcpy.Select_analysis(facilities, facilitiesFiltered, facilitiesWhereClause)
 
@@ -154,9 +156,20 @@ class Tool(object):
         facilities = facilitiesFiltered
 
 
+        arcpy.conversion.FeaturesToJSON(incidents, "CFGeoJsoFacilities.geojson", geoJSON=True, outputToWGS84=True)
+        arcpy.conversion.FeaturesToJSON(incidents, "CFGeoJsonIncidents.geojson", geoJSON=True, outputToWGS84=True)
+
+        with open("CFGeoJson.geojson", "r", encoding='utf-8') as f:
+            facilities_data = json.loads(f.read())
+
+        with open("CFGeoJson.geojson", "r", encoding='utf-8') as f:
+            incidentgs_data = json.loads(f.read())
+
+        #arcpy.conversion.FeaturesToJSON(facilities, "CFGeoJson.geojson", geoJSON=True, outputToWGS84=True)
 
 
-
+        
+    
 
 
 
@@ -169,8 +182,8 @@ class Tool(object):
         arcgis.GIS("https://www.arcgis.com", api_key=api_key)
 
         # Call the closest facility service
-        result = arcgis.network.analysis.find_closest_facilities(facilities=facilities,
-                                                                incidents=incidents,
+        result = arcgis.network.analysis.find_closest_facilities(facilities=facilities_data,
+                                                                incidents=incidentgs_data,
                                                                 number_of_facilities_to_find=2,
                                                                 cutoff=5,
                                                                 travel_direction="Facility to Incident",
