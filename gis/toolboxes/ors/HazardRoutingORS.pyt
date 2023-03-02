@@ -54,6 +54,13 @@ class Tool(object):
                 datatype="GPMap",
                 parameterType="Required",
                 direction="Input"
+            ),
+            arcpy.Parameter(
+                displayName="Return Directions?",
+                name="directions",
+                datatype="GPBoolean",
+                parameterType="Optional",
+                direction="Input"
             )
         ]
 
