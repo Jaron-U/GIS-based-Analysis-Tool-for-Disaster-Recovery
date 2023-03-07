@@ -160,7 +160,7 @@ class Tool(object):
         messages.addMessage("Adding routes to map...")
         # This is kinda hacky but sorta worked for me.  The routes weren't completely generated (probably due to the cutoff parameter)
         arcpy.conversion.JSONToFeatures(path.join(workspace, "temp_routes.json"), path.join(workspace, output_layer))
-        arcgis_map.addLayer(path.join(workspace, output_layer)+".shp")
+        arcgis_map.addDataFromPath(path.join(workspace, output_layer)+".shp")
         messages.addMessage("Done!")
         return
         
