@@ -9,30 +9,37 @@ function bind() {
                 attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(map);
 
-        document.getElementById('submit').addEventListener('click', 
-        getRoute)
+        document.getElementById('submit').addEventListener('click',
+                getRoute)
 
         // L.geoJSON(geojsonFeature).addTo(map)
 }
 
-
-function convert2Float(num) {
-        num = parseFloat(num);
-        if (typeof num === 'number' && num % 1 === 0) {
-                num = num.toFixed(1)
-        }
-        return num
-}
-
 async function getRoute() {
-        var oLat = convert2Float(document.getElementById('originLat').value);
-        var oLnt = convert2Float(document.getElementById('originLnt').value);
-        var dLat = convert2Float(document.getElementById('destinationLat').value);
-        var dLnt = convert2Float(document.getElementById('destinationLnt').value);
-        const url = new URL(`/route`, window.location.origin);
-        url.pathname += `/${oLat}/${oLnt}/${dLat}/${dLnt}`;
-        const response = await fetch(url);
-        const data = await response.json();
-        var output = document.getElementById('output')
-        output.innerHTML = JSON.stringify(data);
+        var oLat = parseFloat(document.getElementById('originLat').value);
+        var oLnt = parseFloat(document.getElementById('originLnt').value);
+        var dLat = parseFloat(document.getElementById('destinationLat').value);
+        var dLnt = parseFloat(document.getElementById('destinationLnt').value);
+        // console.log(typeof(dLat))
+        const data = {
+                stops: [[oLnt,oLat],[dLnt,dLat]],
+                hazards: "geojson"
+        };
+
+        fetch('/route/submit-data', {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: {
+                        'Content-Type': 'application/json'
+                }
+        })
+        .then(response => response.json())
+        .then(data => {
+                console.log('Success:', data);
+                var output = document.getElementById('output')
+                output.innerHTML = JSON.stringify(data);
+        })
+        .catch((error) => {
+                console.error('Error:', error);
+        });
 }
