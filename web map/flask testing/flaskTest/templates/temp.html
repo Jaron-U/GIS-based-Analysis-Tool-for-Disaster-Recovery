@@ -2,7 +2,9 @@
     <head>
         <title> Test </title>
         <link rel="stylesheet" type="text/css" href="css/temp.css" />
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/temp.css') }}" />
         <link rel="stylesheet" href="leaflet/leaflet.css" />
+        <link rel="stylesheet" href="{{ url_for('static', filename='leaflet/leaflet.css') }}" />
         
         <script>
             function fetchJSON(url) {
@@ -25,6 +27,18 @@
                     console.log(jsonFeature);
                     L.geoJSON(jsonFeature).addTo(map);
                 }
+            }
+            
+            function getDirections() {
+                var lonUser = document.getElementById("lonFrom").value
+                var latUser = document.getElementById("latFrom").value
+                var lonDest = document.getElementById("lonTo").value
+                var latDest = document.getElementById("latTo").value
+                //var extraHazards = document.getElementById("uploadFile").value
+                
+                alert("From: " + lonUser + ", " + latUser)
+                alert("To: " + lonDest + ", " + latDest)
+                //alert("Hazards: " extraHazards)
             }
         </script>
     </head>
@@ -52,7 +66,7 @@
         <p>Extra hazard information to include in this calculation: </p>
         <input type="file" id="uploadFile" multiple>
         
-        <p> <button type="button">Get directions!</button> </p>
+        <p> <button type="button" id="requestPath">Get directions!</button> </p>
         
         <p>World map </p>
         <div id="map"></div>
@@ -69,9 +83,9 @@
         <p></p>
         
         <script src="leaflet/leaflet.js"></script>
+        <script src="{{ url_for('static', filename='leaflet/leaflet.js') }}"></script>
         <script>
             //document.getElementById("upload").addEventListener("click", sendJSON);
-            document.getElementById("uploadFile").addEventListener("change", sendJSON);
             
             var map = L.map('map').setView([30, 11], 3);
             
@@ -85,6 +99,9 @@
                 console.log(data);
                 L.geoJSON(data).addTo(map);
             })
+            
+            document.getElementById("uploadFile").addEventListener("change", sendJSON);
+            document.getElementById("requestPath").addEventListener("click", getDirections);
         </script>
     </body>
 </html>

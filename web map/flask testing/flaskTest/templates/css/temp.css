@@ -1,0 +1,10 @@
+body {
+    background-color: #b0b0b0;
+    margin: 3vw;
+    margin-top: 0vw;
+    margin-bottom: 6vw;
+}
+
+#map { 
+    height: 480px; 
+}
