@@ -40,7 +40,7 @@ def getResponse(start, end):
 	response = requests.get(api, params=parameters)
 	return response
 
-def writeResponse(response, filename):
+def convertResponse(response):
 	response_dict = json.loads(response.text)
 	# get the road data we need
 	new_coordinates = response_dict['routes']['features'][0]['geometry']['paths'][0]
@@ -48,21 +48,23 @@ def writeResponse(response, filename):
 	# put the road data input the geojson style text
 	geometry['coordinates'] = new_coordinates
 	dict = templateDict
-	# write the formatted json into a file.
-	with open(filename,'w') as r:
-		json.dump(dict,r)
+
+	return dict
 
 
 
-def route():
-    #set the start point
-	start = "-122.2737581,44.5739238"
-	end = "-123.2788905,44.5669322"
+def route(data):
+	start = "{},{}".format(data["stops"][0][0], data["stops"][0][1])
+	end = "{},{}".format(data["stops"][1][0], data["stops"][1][1])
 	response = getResponse(start, end)
 	if response.status_code == 200:
-    	# get the response file
-		with open('reponse.json','w') as f:
-			f.write(response.text)
-		writeResponse(response, 'directions.geojson')
+		route_data = convertResponse(response)
+		print(route_data)
+		return route_data
 	else:
-		print("Error: ", response.text)
+		response = { 
+			"code": response.status_code,
+			"Error": response.text
+		}
+		return response
+	

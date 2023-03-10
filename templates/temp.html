@@ -5,8 +5,9 @@
         <meta http-equiv='X-UA-Compatible' content='IE=edge'>
         <title> OpenStreetMap Test </title>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/temp.css') }}" />
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+        <!-- <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" /> -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='leaflet/leaflet.css') }}" />
+        <script src="{{ url_for('static', filename='leaflet/leaflet.js') }}"></script>
         <script src='static/js/mapTemp.js'></script>
     </head>
     
@@ -51,7 +52,9 @@
                             required
                             placeholder="lat: 123.23"
                             />
-
+                    
+                    <p>Extra hazard information to include in this calculation: </p>
+                    <input type="file" id="uploadFile" multiple>
                     
                     <p>
                         <button type="button" id="submit" value="get the route" >GetRoute</button>
