@@ -1,0 +1,56 @@
+body {
+    background-color: #eeeeee;
+    margin: 3vw;
+    margin-top: 0vw;
+    margin-bottom: 6vw;
+    max-width: 1500pt;
+}
+
+article {
+  float: left;
+  padding: 20px;
+  width: 40%;
+  height: 300px;
+}
+
+div {
+  margin-bottom: 6%;
+}
+
+#map { 
+    margin-top: 5%;
+    height: 780px; 
+    width: 1000px auto;
+    border: 2px solid rgb(63, 63, 63);
+    margin: 20px;
+}
+
+button, input, select{
+    font-size:110%;
+    padding:1%;
+    margin-top: 1%;
+    margin-left: 1%;
+  }
+
+button {
+  font-size:20px;
+  border-right:2px solid rgb(53, 53, 53);
+  border-radius:3px 3px 3px 3px;
+}
+button:hover {
+  color:rgb(255, 255, 255);
+  background-color: rgb(139, 213, 135);
+  border:2px solid rgb(139, 213, 135);
+  border-radius:3px 3px 3px 3px;
+}
+
+fieldset { 
+  margin-top:5%; 
+  padding:2%;  
+}
+
+footer {
+  margin-top: 10%;
+  background-color:rgb(228, 225, 218);
+  padding:3%;
+}

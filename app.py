@@ -8,7 +8,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-	return render_template("temp.html")
+	return render_template("main.html")
 
 # TODO ADD ROUTE FOR GETTING DIRECTIONS FROM STOPS GIVEN GEOJSON PARAMETER
 @app.route('/route/submit-data', methods=['POST'])
