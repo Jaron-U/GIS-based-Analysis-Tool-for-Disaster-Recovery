@@ -59,7 +59,6 @@ def route(data):
 	response = getResponse(start, end)
 	if response.status_code == 200:
 		route_data = convertResponse(response)
-		print(route_data)
 		return route_data
 	else:
 		response = { 

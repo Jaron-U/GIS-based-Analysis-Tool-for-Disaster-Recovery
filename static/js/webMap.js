@@ -64,9 +64,8 @@ async function getRoute(L, map) {
         })
         .then(response => response.json())
         .then(data => {
-                // console.log('Success:', data);
+                console.log('Success:', data);
                 L.geoJSON(data).addTo(map);
-                // map.fitBounds(group.getRoute)
         })
         .catch((error) => {
                 console.error('Error:', error);
