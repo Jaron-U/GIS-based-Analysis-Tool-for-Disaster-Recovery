@@ -2,7 +2,7 @@
 # Example which will find the directions between two points using
 # the ArcGIS route API.
 
-import requests
+#import requests
 import json
 
 token = 'AAPKed0344fad75a47759b9659eae86034daRZO9WuLRC0mwoydQIcZg3E41PAlD6vFtpsUi9cHIw2i7IQUmrjtq8aYyrPZgK2tp'

@@ -20,54 +20,62 @@ function bind() {
                         if (serviceType === "place"){
                                 getRoute(L, map)
                         }
-                })
+            })
+
+        document.getElementById("uploadFile").addEventListener("change", getContent(L, map)); //visualize hazard data on the map when it's added
 }
 
-function getContent() {
+function getContent(L, map) { //display json information on the map
         var fReader = new FileReader();
         var file = document.getElementById("uploadFile").files[0]
         fReader.readAsText(file);
         fReader.onload = function() {
                 var jsonFeature = JSON.parse(fReader.result)
-                console.log(jsonFeature)  
+                console.log(jsonFeature)
+                L.geoJSON(jsonFeature).addTo(map);
                 return jsonFeature
         }
 }
 
 
 async function getRoute(L, map) {
-        //get location info, and convert them to float type
-        var oLat = parseFloat(document.getElementById('originLat').value);
-        var oLnt = parseFloat(document.getElementById('originLnt').value);
-        var dLat = parseFloat(document.getElementById('destinationLat').value);
-        var dLnt = parseFloat(document.getElementById('destinationLnt').value);
+    //get location info, and convert them to float type
+    var oLat = parseFloat(document.getElementById('originLat').value);
+    var oLnt = parseFloat(document.getElementById('originLnt').value);
+    var dLat = parseFloat(document.getElementById('destinationLat').value);
+    var dLnt = parseFloat(document.getElementById('destinationLnt').value);
 
-        //hard code for test
-        oLnt = -123.27898217097302
-        oLat = 44.57272617278602
-        dLnt = -123.26839325796291
-        dLat = 44.56848686030949
+    //hard code for test
+    oLnt = -123.27898217097302
+    oLat = 44.57272617278602
+    dLnt = -123.26839325796291
+    dLat = 44.56848686030949
 
+    var fReader = new FileReader(); //start loading/reading the uploaded file
+    fReader.readAsText(document.getElementById('uploadFile').files[0]);
+        
+    fReader.onload = function() { //function() will run upon completing the load of the uploaded file
         //convert the input data into json type
         const data = {
-                stops: [[oLnt,oLat],[dLnt,dLat]],
-                hazards: "geojson"
+            stops: [[oLnt, oLat], [dLnt, dLat]],
+            hazards: JSON.parse(fReader.result)
         };
-
+        console.log(data)
         //fetch the data from backend
         fetch('/route/submit-data', {
-                method: 'POST',
-                body: JSON.stringify(data),
-                headers: {
-                        'Content-Type': 'application/json'
-                }
+            method: 'POST',
+            body: JSON.stringify(data),
+            headers: {
+                'Content-Type': 'application/json'
+            }
         })
         .then(response => response.json())
         .then(data => {
-                console.log('Success:', data);
-                L.geoJSON(data).addTo(map);
+            console.log('Success:', data);
+            L.geoJSON(data).addTo(map);
         })
         .catch((error) => {
-                console.error('Error:', error);
+            console.error('Error:', error);
         });
+    }
 }

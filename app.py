@@ -1,7 +1,7 @@
 # Flask server to serve as an API
 import data # our custom wrapper for the ArcGIS APIs
 from flask import Flask, request, jsonify, render_template
-import requests
+#import requests
 from directionAPI import route
 
 app = Flask(__name__)
