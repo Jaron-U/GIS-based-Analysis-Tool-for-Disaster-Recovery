@@ -45,8 +45,9 @@ class Tool(object):
                 displayName='Barriers',
                 name='barriers',
                 datatype="GPFeatureLayer",
-                parameterType='Required',
-                direction='Input'
+                parameterType='Optional',
+                direction='Input',
+                multiValue=True
             ),
             arcpy.Parameter(
                 displayName="Selected Map",
@@ -63,6 +64,10 @@ class Tool(object):
                 direction="Input"
             )
         ]
+
+        # Defaults
+
+        params[4].value = "false"
 
         return params
 
@@ -86,8 +91,10 @@ class Tool(object):
         lng1, lat1 = parameters[0].valueAsText.split(" ")
         lng2, lat2 = parameters[1].valueAsText.split(" ")
         coordinates = [(float(lat1), float(lng1)), (float(lat2), float(lng2))]
-        barriers = parameters[2].valueAsText
+        barriers = parameters[2].valueAsText.split(';')
         map_name = parameters[3].valueAsText
+        directions = parameters[4].valueAsText
+        # messages.addMessage(barriers)
 
         workspace, dir = path.split(arcpy.env.workspace)
         if not dir.endswith('.gdb'):
@@ -96,25 +103,28 @@ class Tool(object):
         # access project resources
         proj = arcpy.mp.ArcGISProject("CURRENT")
         arcgis_map = list(filter(lambda map: map.name == map_name, proj.listMaps()))[0]
-        messages.addMessage("Finding barrier layer named  \"" + barriers + "\"")
-        if '\\' in barriers:
-            barriers = barriers.split('\\')[-1]
-        barrier_layer = list(filter(lambda layer: layer.name == barriers, arcgis_map.listLayers()))[0]
 
-        # Write as GeoJSON
-        arcpy.conversion.FeaturesToJSON(barrier_layer, path.join(workspace, "barrier_layer.geojson"), geoJSON=True, outputToWGS84=True)
-        # open the barrier layer
-        with open(path.join(workspace, "barrier_layer.geojson"), "r", encoding='utf-8') as f:
-            feature_data = json.loads(f.read())
-        
-        #messages.addMessage(feature_data)
 
-        # Create request for the open-route-service
+        # Acquire polygon data from each barrier layer
         polygons = []
-        for feature in feature_data['features']:
-            if feature['geometry']['type'] == 'Polygon':
-                polygons.append(feature['geometry']['coordinates'])
+        for barrier in barriers:
+            messages.addMessage("Finding barrier layer named  \"" + barrier + "\"")
+            if '\\' in barrier:
+                barrier = barrier.split('\\')[-1]
+            barrier_layer = list(filter(lambda layer: layer.name == barrier, arcgis_map.listLayers()))[0]
+            messages.addMessage("Converting barrier layer into JSON...")
+
+            # Write as GeoJSON
+            arcpy.conversion.FeaturesToJSON(barrier_layer, path.join(workspace, "barrier_layer.geojson"), geoJSON=True, outputToWGS84=True)
+            # open the barrier layer
+            with open(path.join(workspace, "barrier_layer.geojson"), "r", encoding='utf-8') as f:
+                feature_data = json.loads(f.read())
         
+            # Create request for the open-route-service
+            for feature in feature_data['features']:
+                if feature['geometry']['type'] == 'Polygon':
+                    polygons.append(feature['geometry']['coordinates'])
+
         data = {
             "coordinates": [[lng1, lat1], [lng2, lat2]],
             "instructions": 'false'
