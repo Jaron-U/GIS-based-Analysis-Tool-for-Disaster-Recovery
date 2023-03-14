@@ -22,21 +22,33 @@ function bind() {
                         }
             })
 
-        document.getElementById("uploadFile").addEventListener("change", getContent(L, map)); //visualize hazard data on the map when it's added
-}
-
-function getContent(L, map) { //display json information on the map
-        var fReader = new FileReader();
-        var file = document.getElementById("uploadFile").files[0]
-        fReader.readAsText(file);
-        fReader.onload = function() {
+        //visualize hazard data on the map when it's added
+        document.getElementById("uploadFile").addEventListener("change", function() {
+            var fReader = new FileReader();
+            var file = document.getElementById("uploadFile").files[0]
+            fReader.readAsText(file)
+            fReader.onload = function () {
                 var jsonFeature = JSON.parse(fReader.result)
-                console.log(jsonFeature)
-                L.geoJSON(jsonFeature).addTo(map);
+                L.geoJSON(jsonFeature).addTo(map)
+                //map.fitBounds(new L.featureGroup(jsonFeature.features[0].geometry.coordinates[0]).getBounds())
+                console.log(jsonFeature.features[0].geometry.coordinates[0])
                 return jsonFeature
-        }
-}
+            }
+        });
 
+        document.getElementById('p2dInfo').style.display = "none"
+        document.getElementById("service").value = "place"
+        document.getElementById("service").addEventListener("change", function () {
+            if (document.getElementById('service').value == "place") {
+                document.getElementById('p2dInfo').style.display = "none"
+                document.getElementById('p2pInfo').style.display = ""
+            }
+            if (document.getElementById('service').value == "facility") {
+                document.getElementById('p2pInfo').style.display = "none"
+                document.getElementById('p2dInfo').style.display = ""
+            }
+        })
+}
 
 async function getRoute(L, map) {
     //get location info, and convert them to float type

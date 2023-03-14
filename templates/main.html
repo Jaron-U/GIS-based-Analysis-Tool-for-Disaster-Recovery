@@ -12,70 +12,81 @@
     
     <body>
         <header>
-            <h1> GISDR WebMap </h1>
+            <h1 id="title"> GIS Disaster Reporting </h1>
         </header>
         
         <main>
             <section>
                 <article>
-                    <h2>Please Input:</h2>
-
                     <fieldset>
-                        <legend>Service type: </legend>
+                        <legend id="secTitle">Service type: </legend>
                         <select name="service-menu" id="service">
-                        <option value="place">Directions to a place</option>
-                        <option value="facility">Directions to a facility</option>
+                            <!-- Service selector -->
+                            <option value="place">Directions to a place</option>
+                            <option value="facility">Directions to a facility</option>
                         </select>
                     </fieldset>
 
                     <fieldset>
-                    <legend>Location Info</legend>
-                    <p>Where do you need to go?</p>
-                    <label for="originLnt" class="required">Longitude:</label>
-                        <input 
-                            type="text"
-                            name="originLnt" id="originLnt"
-                            required
-                            placeholder="Lnt: 123.00"
-                            autofocus/>
-                    <div>
-                    <label for="originLat" class="required">Latitude:</label>
-                        <input 
-                            type="text"
-                            name="originLat" id="originLat"
-                            required
-                            placeholder="Lat: 123.23"
-                            />
-                    </div> 
+                        <legend id="secTitle">Location Info</legend>
 
-                    <p id="des">Where are you?</p>
-                    <label for="destinationLnt" class="required">Longitude:</label>
-                        <input 
-                            type="text"
-                            name="destinationLnt" id="destinationLnt"
-                            required
-                            placeholder="Lnt: 123.23"
-                            />
-                    <div>
-                    <label for="destinationLat" class="required">Latitude:</label>
-                        <input 
-                            type="text"
-                            name="destinationLat" id="destinationLat"
-                            required
-                            placeholder="Lat: 123.23"
-                            />
-                    </div>
+                        <p id="des"> Where are you? </p> <!-- User location boxes, exists across all options (currently) -->
+                        <p>
+                            <label for="originLnt" class="required"> Longitude: </label>
+                            <input type="text"
+                                   name="originLnt" id="originLnt"
+                                   required
+                                   placeholder="Ex: 123.00"
+                                   autofocus />
+                            <br/>
+                            <label for="originLat" class="required"> Latitude: </label>
+                            <input type="text"
+                                   name="originLat" id="originLat"
+                                   required
+                                   placeholder="Ex: 123.23" />
+                            <button type="button" id="getUser"> Use my position </button>
+                            <button type="button" id="choosePoint"> Choose from map </button>
+                        </p>
+
+                        <div id="p2pInfo" style=""> <!-- point-to-point boxes (lng & lat) -->
+                            <p id="des"> Where do you need to go? </pid="des">
+                            <p>
+                                <label for="destinationLnt" class="required"> Longitude: </label>
+                                <input type="text"
+                                       name="destinationLnt" id="destinationLnt"
+                                       required
+                                       placeholder="Ex: 123.23" />
+                                <br/>
+                                <label for="destinationLat" class="required"> Latitude: </label>
+                                <input type="text"
+                                       name="destinationLat" id="destinationLat"
+                                       required
+                                       placeholder="Ex: 123.23" />
+                                <button type="button" id="choosePoint"> Choose from map </button>
+                            </p>
+                        </div>
+
+                        <div id="p2dInfo" style=""> <!-- point-to-destination box (facility input) -->
+                            <p id="des"> What kind of facility do you need to reach? </p>
+                            <p>
+                                <label for="facilityLabel" class="required"> Input a facility to plot towards: </label>
+                                <input type="text"
+                                       name="facilityLabel" id="facilityIn"
+                                       required
+                                       placeholder="Ex: Hospitals" />
+                            </p>
+                        </div>
                     </fieldset>
-                    
+
                     <fieldset>
-                        <legend>Extra hazard information to include in this calculation: </legend>
+                        <legend id="secTitle">Extra hazard information to include in this calculation: </legend>
                         <input type="file" id="uploadFile" multiple>
                     </fieldset>
-                    
+
                     <p>
-                        <button type="button" id="submit" value="get the route" >GetRoute</button>
-                    </p>                
-                   
+                        <button type="button" id="submit" value="get the route">Get Route</button>
+                    </p>
+
                     <div id="output"></div>
                 </article>
 
