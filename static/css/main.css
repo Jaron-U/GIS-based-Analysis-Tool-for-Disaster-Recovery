@@ -51,9 +51,9 @@ footer {
 
 #map {
     margin-top: 5%;
-    height: 780px;
+    height: 800px;
     width: 1000px auto;
-    border: 2px solid rgb(63, 63, 63);
+    /* border: 2px solid rgb(63, 63, 63); */
     margin: 20px;
 }
 
