@@ -45,7 +45,7 @@
                                    required
                                    placeholder="Ex: 123.23" />
                             <button type="button" id="getUser"> Use my position </button>
-                            <button type="button" id="choosePoint"> Choose from map </button>
+                            <button type="button" id="choosePointOrig"> Choose from map </button>
                         </p>
 
                         <div id="p2pInfo" style=""> <!-- point-to-point boxes (lng & lat) -->
@@ -62,14 +62,20 @@
                                        name="destinationLat" id="destinationLat"
                                        required
                                        placeholder="Ex: 123.23" />
-                                <button type="button" id="choosePoint"> Choose from map </button>
+                                <button type="button" id="choosePointDest"> Choose from map </button>
                             </p>
                         </div>
 
                         <div id="p2dInfo" style=""> <!-- point-to-destination box (facility input) -->
                             <p id="des"> What kind of facility do you need to reach? </p>
                             <p>
-                                <label for="facilityLabel" class="required"> Input a facility to plot towards: </label>
+                                <label for="uploadFacFile" class="required"> Provide a json list of viable locations: </label>
+                                <input type="file" id="uploadFacFile" multiple>
+                                <br />
+                                <br />
+                                <p> -OR- </p>
+                                <br />
+                                <label for="facilityIn" class="required"> Input a facility to plot towards: <br /> </label>
                                 <input type="text"
                                        name="facilityLabel" id="facilityIn"
                                        required

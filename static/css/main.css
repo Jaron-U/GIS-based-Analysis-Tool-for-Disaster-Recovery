@@ -75,6 +75,6 @@ footer {
     font-size: 20px;
 }
 
-#choosePoint, #getUser {
+#choosePointOrig, #choosePointDest, #getUser {
     width: 85%;
 }
