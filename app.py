@@ -16,6 +16,7 @@ def findRoute():
     submit_data = request.get_json()
     stops = submit_data['stops']
     hazards = submit_data['hazards']
+    print(hazards)
     response = route(submit_data)
     return jsonify(response)
 

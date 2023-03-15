@@ -34,7 +34,7 @@ function bind() {
                 var file = document.getElementById("uploadFile").files[0]
                 fReader.readAsText(file)
                 fReader.onload = function () {
-                        var jsonFeature = JSON.parse(fReader.result)
+                        jsonFeature = JSON.parse(fReader.result)
                         L.geoJSON(jsonFeature).addTo(map)
                         //map.fitBounds(new L.featureGroup(jsonFeature.features[0].geometry.coordinates[0]).getBounds())
                         console.log(jsonFeature.features[0].geometry.coordinates[0])
@@ -64,20 +64,20 @@ async function getRoute(L, map) {
         oLat = 44.57272617278602
         dLnt = -123.26839325796291
         dLat = 44.56848686030949
-        
+
         //convert the input data into json type
-        const data = {
+        const input_data = {
                 stops: [
                         [oLnt, oLat],
                         [dLnt, dLat]
                 ],
-                hazards: "JSON.parse(fReader.result)"
+                hazards: jsonFeature
         };
-        console.log(data)
+        console.log(input_data)
         //fetch the data from backend
         fetch('/route/submit-data', {
                 method: 'POST',
-                body: JSON.stringify(data),
+                body: JSON.stringify(input_data),
                 headers: {
                         'Content-Type': 'application/json'
                 }
