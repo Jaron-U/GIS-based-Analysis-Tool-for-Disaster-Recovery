@@ -17,6 +17,7 @@ function bind() {
                 attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(map);
 
+        //control the display contents according to the service type
         document.getElementById('p2dInfo').style.display = "none"
         document.getElementById("service").addEventListener("change", function () {
                 var serviceType = document.getElementById("service").value
@@ -46,9 +47,12 @@ function bind() {
         //handle user own-location request
         document.getElementById("getUser").addEventListener('click', function () {
             if (navigator.geolocation) {
-                var userLoc = navigator.geolocation.getCurrentPosition(function(pos) {
-                    document.getElementById('originLat').value = parseFloat(pos.coords.latitude);
-                    document.getElementById('originLnt').value = parseFloat(pos.coords.longitude);
+                navigator.geolocation.getCurrentPosition(function(pos) {
+                    var lat = document.getElementById('originLat').value = parseFloat(pos.coords.latitude);
+                    var lng = document.getElementById('originLnt').value = parseFloat(pos.coords.longitude);
+                    setPointOnMap(lat, lng, "origin")
+                    // set the map view to the user's location
+                    map.setView([lat, lng], 15);
                 });
             } else {
                 alert("Not supported, sorry!");
@@ -86,10 +90,10 @@ function bind() {
                 var serviceType = document.getElementById('service').value;
                 console.log(serviceType)
                 if (serviceType === "place") {
-                        getRoute(L, map);
+                        getRoute(L);
                 }
                 else if (serviceType === "facility") {
-                        getFacility(L, map);
+                        getFacility(L);
                 }
         })
 }
@@ -100,19 +104,48 @@ function mapClick(e) {
 
 function mapClickOrigin(e) {
     map.off('click', mapClickOrigin);
-    document.getElementById('originLat').value = parseFloat(e.latlng.lat);
-    document.getElementById('originLnt').value = parseFloat(e.latlng.lng);
+    var lat = document.getElementById('originLat').value = parseFloat(e.latlng.lat);
+    var lng = document.getElementById('originLnt').value = parseFloat(e.latlng.lng);
     document.getElementById('choosePointOrig').textContent = "Choose from map";
+    setPointOnMap(lat, lng, "origin")
 }
 
 function mapClickDestination(e) {
     map.off('click', mapClickDestination);
-    document.getElementById('destinationLat').value = parseFloat(e.latlng.lat);
-    document.getElementById('destinationLnt').value = parseFloat(e.latlng.lng);
+    var lat = document.getElementById('destinationLat').value = parseFloat(e.latlng.lat);
+    var lng = document.getElementById('destinationLnt').value = parseFloat(e.latlng.lng);
     document.getElementById('choosePointDest').textContent = "Choose from map";
+    setPointOnMap(lat, lng, "destination")
 }
 
-async function getFacility(L, map) {
+//display a point icon after user choosed the point on the map
+function setPointOnMap(lat, lng, place){
+    var marker
+    var content
+    // create a custom icon with the desired color
+    var greenIcon = L.icon({
+        iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+    });
+    if (place == "origin") {
+        // create a marker at the user's location and add it to the map
+        marker = L.marker([lat, lng], {icon: greenIcon}).addTo(map);
+        content = "you are here"
+    }else {
+        marker = L.marker([lat, lng]).addTo(map);
+        content = "you want to go here"
+    }
+    
+    // create a popup and set its content
+    var popup = L.popup().setLatLng([lat, lng]).setContent(content);
+    // bind the popup to the marker and open it
+    marker.bindPopup(popup).openPopup();
+}
+
+async function getFacility(L) {
     //get location info, and convert them to float type
     var oLat = parseFloat(document.getElementById('originLat').value);
     var oLnt = parseFloat(document.getElementById('originLnt').value);
@@ -132,7 +165,7 @@ async function getFacility(L, map) {
     console.log(input_data)
 
     //fetch the data from backend for facilities
-    fetch('/nearestFacilities/submit-data', {
+    fetch('/route-to-facilities', {
         method: 'POST',
         body: JSON.stringify(input_data),
         headers: {
@@ -148,18 +181,17 @@ async function getFacility(L, map) {
         });
 }
 
-async function getRoute(L, map) {
+async function getRoute(L) {
         //get location info, and convert them to float type
         var oLat = parseFloat(document.getElementById('originLat').value);
         var oLnt = parseFloat(document.getElementById('originLnt').value);
         var dLat = parseFloat(document.getElementById('destinationLat').value);
         var dLnt = parseFloat(document.getElementById('destinationLnt').value);
-
-        //hard code for test
-        //oLnt = -123.27898217097302
-        //oLat = 44.57272617278602
-        //dLnt = -123.26839325796291
-        //dLat = 44.56848686030949
+        
+        //if user did not provide the polygon file, just return the route
+        if (jsonFeature == undefined){
+                jsonFeature = ""
+        }
 
         //convert the input data into json type
         const input_data = {
@@ -169,9 +201,9 @@ async function getRoute(L, map) {
                 ],
                 hazards: jsonFeature
         };
-        console.log(input_data)
+
         //fetch the data from backend for routes
-        fetch('/route/submit-data', {
+        fetch('/route-to-place', {
                 method: 'POST',
                 body: JSON.stringify(input_data),
                 headers: {

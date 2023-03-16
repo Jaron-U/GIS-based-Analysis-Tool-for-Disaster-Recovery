@@ -1,8 +1,7 @@
 # Flask server to serve as an API
 import data # our custom wrapper for the ArcGIS APIs
 from flask import Flask, request, jsonify, render_template
-import requests
-from directionAPI import route
+from directionAPI import route, routeWithoutPolygon
 
 app = Flask(__name__)
 
@@ -11,22 +10,18 @@ def index():
 	return render_template("main.html")
 
 # TODO ADD ROUTE FOR GETTING DIRECTIONS FROM STOPS GIVEN GEOJSON PARAMETER
-@app.route('/route/submit-data', methods=['POST'])
-def findRoute():
+@app.route('/route-to-place', methods=['POST'])
+def findRoutePlace():
     submit_data = request.get_json()
-    stops = submit_data['stops']
-    hazards = submit_data['hazards']
-    print(hazards)
-    response = route(submit_data)
+    if submit_data['hazards']:
+        response = route(submit_data)
+    else:
+        response = routeWithoutPolygon(submit_data)
     return jsonify(response)
 
-def fetchDirectionAPI(submit_data):
-    return
-
-
-# TODO ADD ROUTE FOR CLOSEST FACILITIES
-@app.route("/closest")
-def closestFacilities():
-	pass
-
+@app.route('/route-to-facilities', methods=['POST'])
+def findRouteFacilities():
+    submit_data = request.get_json()
+    response = route(submit_data)
+    return jsonify(response)
 
