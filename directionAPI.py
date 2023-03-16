@@ -2,7 +2,7 @@
 # Example which will find the directions between two points using
 # the ArcGIS route API.
 
-#import requests #sorry that I keep commenting this out. There's some kind of disjoint between my environment and yours that means I can't run flask without removing this line
+import requests #sorry that I keep commenting this out. There's some kind of disjoint between my environment and yours that means I can't run flask without removing this line
 import json
 
 token = 'AAPKed0344fad75a47759b9659eae86034daRZO9WuLRC0mwoydQIcZg3E41PAlD6vFtpsUi9cHIw2i7IQUmrjtq8aYyrPZgK2tp'
@@ -40,6 +40,35 @@ def getResponse(start, end):
 	response = requests.get(api, params=parameters)
 	return response
 
+def getResponseORS(start, end, hazards):
+	polygons = []
+	def addPolygon(polygon_geojson):
+		nonlocal polygons
+		if polygon_geojson['type'] == 'Polygon':
+			polygons.append(polygon_geojson['coordinates'])
+		elif polygon_geojson['type'] == 'MultiPolygon':
+			polygons += polygon_geojson['coordinates']
+
+	for feature in hazards['features']:
+		addPolygon(feature['geometry'])
+	
+	data = {
+        "coordinates": [[start[0], start[1]], [end[0], end[1]]],
+        "instructions": 'false'
+    }
+
+	if len(polygons) > 0:
+		data['options']= {"avoid_polygons": {"type": "MultiPolygon", "coordinates": polygons}}
+	
+	response = requests.post('http://146.190.156.72:8080/ors/v2/directions/driving-car/geojson', data=json.dumps(data), headers={
+		'Content-Type': 'application/json; charset=utf-8',
+		'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8'
+	})
+
+
+	return response
+
+
 def convertResponse(response):
 	response_dict = json.loads(response.text)
 	# get the road data we need
@@ -54,11 +83,14 @@ def convertResponse(response):
 
 
 def route(data):
-	start = "{},{}".format(data["stops"][0][0], data["stops"][0][1])
-	end = "{},{}".format(data["stops"][1][0], data["stops"][1][1])
-	response = getResponse(start, end)
+	#start = "{},{}".format(data["stops"][0][0], data["stops"][0][1])
+	#end = "{},{}".format(data["stops"][1][0], data["stops"][1][1])
+	start = (data["stops"][0][0], data["stops"][0][1])
+	end = (data["stops"][1][0], data["stops"][1][1])
+	response = getResponseORS(start, end, data["hazards"])
 	if response.status_code == 200:
-		route_data = convertResponse(response)
+		#route_data = convertResponse(response)
+		route_data = response.json()
 		return route_data
 	else:
 		response = { 

@@ -156,10 +156,10 @@ async function getRoute(L, map) {
         var dLnt = parseFloat(document.getElementById('destinationLnt').value);
 
         //hard code for test
-        oLnt = -123.27898217097302
-        oLat = 44.57272617278602
-        dLnt = -123.26839325796291
-        dLat = 44.56848686030949
+        //oLnt = -123.27898217097302
+        //oLat = 44.57272617278602
+        //dLnt = -123.26839325796291
+        //dLat = 44.56848686030949
 
         //convert the input data into json type
         const input_data = {
