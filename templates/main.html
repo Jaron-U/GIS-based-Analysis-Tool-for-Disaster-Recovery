@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset='utf-8'>
+        <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+        <title>GISDR WebMap</title>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}" />
+        <link rel="stylesheet" href="{{ url_for('static', filename='leaflet/leaflet.css') }}" />
+        <script src="{{ url_for('static', filename='leaflet/leaflet.js') }}"></script>
+        <script src='static/js/webMap.js'></script>
+    </head>
+    
+    <body>
+        <header>
+            <h1 id="title"> GIS Disaster Reporting </h1>
+        </header>
+        
+        <main>
+            <section>
+                <article>
+                    <fieldset>
+                        <legend id="secTitle">Service type: </legend>
+                        <select name="service-menu" id="service">
+                            <!-- Service selector -->
+                            <option value="place">Directions to a place</option>
+                            <option value="facility">Directions to a facility</option>
+                        </select>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend id="secTitle">Location Info</legend>
+
+                        <p id="des"> Where are you? </p> <!-- User location boxes, exists across all options (currently) -->
+                        <p>
+                            <label for="originLnt" class="required"> Longitude: </label>
+                            <input type="text"
+                                   name="originLnt" id="originLnt"
+                                   required
+                                   placeholder="Ex: 123.00"
+                                   autofocus />
+                            <br/>
+                            <label for="originLat" class="required"> Latitude: </label>
+                            <input type="text"
+                                   name="originLat" id="originLat"
+                                   required
+                                   placeholder="Ex: 123.23" />
+                            <button type="button" id="getUser"> Use my position </button>
+                            <button type="button" id="choosePointOrig"> Choose from map </button>
+                        </p>
+
+                        <div id="p2pInfo" style=""> <!-- point-to-point boxes (lng & lat) -->
+                            <p id="des"> Where do you need to go? </pid="des">
+                            <p>
+                                <label for="destinationLnt" class="required"> Longitude: </label>
+                                <input type="text"
+                                       name="destinationLnt" id="destinationLnt"
+                                       required
+                                       placeholder="Ex: 123.23" />
+                                <br/>
+                                <label for="destinationLat" class="required"> Latitude: </label>
+                                <input type="text"
+                                       name="destinationLat" id="destinationLat"
+                                       required
+                                       placeholder="Ex: 123.23" />
+                                <button type="button" id="choosePointDest"> Choose from map </button>
+                            </p>
+                        </div>
+
+                        <div id="p2dInfo" style=""> <!-- point-to-destination box (facility input) -->
+                            <p id="des"> What kind of facility do you need to reach? </p>
+                            <p>
+                                <label for="uploadFacFile" class="required"> Provide a json list of viable locations: </label>
+                                <input type="file" id="uploadFacFile" multiple>
+                                <br />
+                                <br />
+                                <p> -OR- </p>
+                                <br />
+                                <label for="facilityIn" class="required"> Input a facility to plot towards: <br /> </label>
+                                <input type="text"
+                                       name="facilityLabel" id="facilityIn"
+                                       required
+                                       placeholder="Ex: Hospitals" />
+                            </p>
+                        </div>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend id="secTitle">Extra hazard information to include in this calculation: </legend>
+                        <input type="file" id="uploadFile" multiple>
+                    </fieldset>
+
+                    <p>
+                        <button type="button" id="submit" value="get the route">Get Route</button>
+                    </p>
+
+                    <div id="output"></div>
+                </article>
+
+                <div id="map"></div>
+            </section>
+        </main>
+
+        <footer>
+            <p><cite>&copy; 2023 GIS-Project</cite></p>
+        </footer>
+    </body>
+</html>
