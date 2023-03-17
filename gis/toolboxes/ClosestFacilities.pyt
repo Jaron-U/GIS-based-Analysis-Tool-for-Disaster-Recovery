@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+
 import arcpy
 import random
-import os
+from os import path
 import requests
 import arcgis
 from arcgis.gis import GIS
@@ -9,84 +10,69 @@ import http
 import requests
 import datetime
 import arcgis
-import json
 import pandas as pd
+import json
+import os
 
 
 class Toolbox(object):
     def __init__(self):
         """Define the toolbox (the name of the toolbox is the name of the
         .pyt file)."""
-        self.label = "Toolbox"
-        self.alias = "toolbox"
+        self.label = "Closest Facilities Toolbox"
+        self.alias = "Closest Facilities Toolbox"
 
         # List of tool classes associated with this toolbox
         self.tools = [Tool]
 
-
 class Tool(object):
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
-        self.label = "Tool"
+        self.label = "Closest Facilities Toolbox"
         self.description = ""
         self.canRunInBackground = False
 
     def getParameterInfo(self):
 
-        """Define parameter definitions"""
-        # First parameter
-        diaster_type = arcpy.Parameter(displayName="Diaster type",
-            name="DiasterT",
-            datatype="String",
+        incidents = arcpy.Parameter(
+            displayName="Starting Points (Incidents)",
+            name="starting_points",
+            datatype="GPFeatureLayer",
             parameterType="Optional",
             direction="Input")
-
-        diaster_type.filter.type = "ValueList"
-        diaster_type.filter.list = ["Landslides","Tsunami","Earthquake"]
-
-        # Second parameter
-        incidents = arcpy.Parameter(displayName="Starting Points (Incidents)",
-            # name="StartingP",
-            # datatype="DEFeatureClass",
-            # parameterType="Optional",
-            # direction="Input"
-            name='origin',
-            datatype='Feature Layer',
-            parameterType ='Required',
-            direction='Input')
         
         incidents_filter = arcpy.Parameter(displayName="Incidents Filter(disabled)",
             name="IncidentsF",
             datatype="SQL Expression",
             parameterType="Optional",
             direction="Input")
-        # set up dependency
         incidents_filter.parameterDependencies = [incidents.name]
 
-        Facilities = arcpy.Parameter(displayName="End Points (Facilities)",
-            name='destination',
-            datatype='Feature Layer',
-            parameterType ='Required',
-            direction='Input')
-
-        facilities_filter = arcpy.Parameter(displayName="Facilities Filter(disabled)",
-            name="FacilitiesF",
-            datatype="SQL Expression",
+        facilities = arcpy.Parameter(
+            displayName="Facilities",
+            name="facilities",
+            datatype="GPFeatureLayer",
             parameterType="Optional",
-            direction="Input")
-        # set up dependency
-        facilities_filter.parameterDependencies = [incidents.name]
-        
+            direction="Input"
+        )
 
-        # 6th
-        map1 = arcpy.Parameter(displayName="Hazardous Areas",
+        map_parameter = arcpy.Parameter(
+            displayName="Map",
             name="map",
             datatype="GPMap",
             parameterType="Required",
-            direction="Input")
-        
-        params = [diaster_type, incidents,incidents_filter, Facilities, facilities_filter, map1]
-        return params
+            direction="Input"
+        )
+
+        outputLayer = arcpy.Parameter(
+            displayName="Output Layer Name",
+            name="output_layer",
+            datatype="GPString",
+            parameterType="Required",
+            direction="Input"
+        )
+
+        return [incidents, incidents_filter, facilities, map_parameter, outputLayer]
 
     def isLicensed(self):
         """Set whether tool is licensed to execute."""
@@ -104,86 +90,67 @@ class Tool(object):
         return
 
     def execute(self, parameters, messages):
-        # ********************************************************************
-        # Main Program
-        # ********************************************************************
-        # ////////////////////////////////////////////////////////////////////
-        # Earthquake Simulation
-        # ////////////////////////////////////////////////////////////////////
-        # --------------------------------------------------------------------
-        # Setting directories
-        # --------------------------------------------------------------------
-        # First, we'll calculate the exceedance probability values of the bridges.
-        # Get the current directory of the script; it should look something like the following:
-        # {YOUR LOCAL DRIVE}\{OTHER FOLDERS}\GADEP\Scripts
-    # inputs
+        incidents = parameters[0].valueAsText
+        incidentsWhereClause = parameters[1].valueAsText
+        facilites = parameters[2].valueAsText
+        map_name = parameters[3].valueAsText
+        output_layer = parameters[4].valueAsText
 
 
-        # workspace, dir = path.split(arcpy.env.workspace)
-        # if not dir.endswith('.gdb'):
-        #     workspace = arcpy.env.workspace
-        # # access project resources
-        # proj = arcpy.mp.ArcGISProject("CURRENT")
-        # arcgis_map = list(filter(lambda map: map.name == map_name, proj.listMaps()))[0]
-        # barrier_layer = list(filter(lambda layer: layer.name == barriers, arcgis_map.listLayers()))[0]
+        # boilerplate to setup project vars
+        workspace, dir = path.split(arcpy.env.workspace)
+        if not dir.endswith('.gdb'):
+            workspace = arcpy.env.workspace
+        
+        # get project resources
+        proj = arcpy.mp.ArcGISProject("CURRENT")
+        arcgis_map = list(filter(lambda map: map.name == map_name, proj.listMaps()))[0]
 
-
-
-        # the incidents and 
-        incidents = parameters[1].valueAsText
-        incidentsWhereClause = parameters[2].valueAsText
-        facilities = parameters[3].valueAsText
-        facilitiesWhereClause = parameters[4].valueAsText
-
-        messages.addMessage("parameter loaded")
+        # Obtain incidents layer
+        messages.addMessage("Finding point layer named  \"" + incidents + "\"")
+        incidents_layer_Name = incidents
+        if '\\' in incidents:
+            incidents_layer_Name = incidents.split('\\')[-1]
+        incidents = list(filter(lambda layer: layer.name == incidents_layer_Name, arcgis_map.listLayers()))[0]
         # creating pathing
         scriptsPath = os.getcwd()
         projectPath = os.path.join(os.path.dirname(scriptsPath), "Projects", "GADEP")
         gadepPath = os.path.join(projectPath, "GADEP.gdb")
-
-        # The path for new feature layers
         incidentsFiltered = os.path.join(gadepPath,"IncidentsFiltered")
-        facilitiesFiltered = os.path.join(gadepPath,"FacilitiesFiltered")
+        # message("filtered file created")
+        arcpy.management.MakeFeatureLayer(incidents, incidentsFiltered,incidentsWhereClause, workspace)
+        incidents = incidentsFiltered
 
-        # using sql to filter the feature layers
-        arcpy.Select_analysis(incidents, incidentsFiltered, incidentsWhereClause)
-        arcpy.Select_analysis(facilities, facilitiesFiltered, facilitiesWhereClause)
-
-
-
-        incidents  = incidentsFiltered
-
-        facilities = facilitiesFiltered
-
-
-        arcpy.conversion.FeaturesToJSON(incidents, "CFGeoJsoFacilities.geojson", geoJSON=True, outputToWGS84=True)
-        arcpy.conversion.FeaturesToJSON(incidents, "CFGeoJsonIncidents.geojson", geoJSON=True, outputToWGS84=True)
-
-        with open("CFGeoJson.geojson", "r", encoding='utf-8') as f:
-            facilities_data = json.loads(f.read())
-
-        with open("CFGeoJson.geojson", "r", encoding='utf-8') as f:
-            incidentgs_data = json.loads(f.read())
-
-        #arcpy.conversion.FeaturesToJSON(facilities, "CFGeoJson.geojson", geoJSON=True, outputToWGS84=True)
-
-
+        # Obtain facilities layer
+        messages.addMessage("Finding point layer named  \"" + facilites + "\"")
+        if '\\' in facilites:
+            facilities_layer_Name = facilites.split('\\')[-1]
+        facilites = list(filter(lambda layer: layer.name == facilities_layer_Name, arcgis_map.listLayers()))[0]
         
-    
+
+        messages.addMessage("Transforming facilities layer into JSON file")
+        arcpy.conversion.FeaturesToJSON(facilites, path.join(workspace, "facilities.json"))
+        messages.addMessage("Transforming incidents layer into JSON file")
+        arcpy.conversion.FeaturesToJSON(incidents, path.join(workspace, "incidents.json"))
 
 
+        # Open generated JSON files and read JSON content
+        with open(path.join(workspace, "facilities.json"), "r", encoding="utf-8") as facilities_file:
+            facilities_data = json.loads(facilities_file.read())
+        # facilities_data = incidentsFiltered
+
+        with open(path.join(workspace, "incidents.json"), "r", encoding="utf-8") as incidents_file:
+            incidents_data = json.loads(incidents_file.read())
 
 
-
-
-        # perform API call
         # Connect to the closest facility service
         api_key = "AAPK48cecd16fc9346a98e03f65a2cc0fce11Bx8ccleUqMD3VV-P8brDfuj98-nVfe1bj2qY9WrBeKIoohD2Fy3F2aCjaG1STj4"
         arcgis.GIS("https://www.arcgis.com", api_key=api_key)
 
+
         # Call the closest facility service
         result = arcgis.network.analysis.find_closest_facilities(facilities=facilities_data,
-                                                                incidents=incidentgs_data,
+                                                                incidents=incidents_data,
                                                                 number_of_facilities_to_find=2,
                                                                 cutoff=5,
                                                                 travel_direction="Facility to Incident",
@@ -205,7 +172,33 @@ class Tool(object):
             messages.addMessage(f"\n| {route_name} |\n")
             messages.addMessage(out_directions["Text"].to_string(index=False))
 
-        #print_result(result)
+        
+        # have to do weird json dump/parse to remove weird escpaing FeatureSet object performs.
+        json_output = json.dumps(json.loads(result.output_routes.to_json))
+        with open(path.join(workspace, "temp_routes.json"), 'w+', encoding='utf-8') as output:
+            output.write(json_output)
+        
+        messages.addMessage("Adding routes to map...")
+        # This is kinda hacky but sorta worked for me.  The routes weren't completely generated (probably due to the cutoff parameter)
+        arcpy.conversion.JSONToFeatures(path.join(workspace, "temp_routes.json"), path.join(workspace, output_layer))
+
+    # new_layer = arcpy.mapping.Layer("output_layer")
+        # Define the color you want to use (in RGB format)
+    # color = arcpy.CreateObject("Color")
+    # color.RGB = [255, 0, 0] # Red color
+
+    # # Create a symbol object for the line feature
+    # line_symbol = arcpy.mapping.LineSymbol()
+    # line_symbol.color = color
+    # line_symbol.width = 3 # Adjust line width as needed
+
+    # # Set the symbol for the layer
+    # layer.symbology = line_symbol
+
+        arcgis_map.addDataFromPath(path.join(workspace, output_layer)+".shp")
+        messages.addMessage("Done!")
+        return
+        
 
     def postExecute(self, parameters):
         """This method takes place after outputs are processed and
@@ -255,26 +248,11 @@ def feature_to_point(inFeature, outFeature):
         return outFeature
 def message(message):
     arcpy.AddMessage(message)
-# Connect to the closest facility service and call it
 
 
-
-
-'''
-def print_result(result):
-    """Print useful information from the result."""
-    pd.set_option("display.max_rows", None)
-    pd.set_option("display.max_colwidth", None)
-
-    output_routes = result.output_routes.sdf
-    print("\n-- Output Routes -- \n")
-    messages.addMessage(output_routes[["Name", "Total_Minutes", "Total_Miles", "Total_Kilometers"]].to_string(index=False))
-
-    out_directions = result.output_directions.sdf[["RouteName", "Text"]]
-    print("\n-- Output Directions -- \n")
-    for route_name in out_directions["RouteName"].unique():
-        messages.addMessage(f"\n| {route_name} |\n")
-        messages.addMessage(out_directions["Text"].to_string(index=False))
-'''
-
+def field_as_dict(field):
+    field_dict = {"name": field.name, "type": field.type, "alias": field.aliasName}
+    if field.type == "String":
+        field_dict["length"] = field.length
+    return field_dict
 
