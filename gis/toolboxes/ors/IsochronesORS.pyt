@@ -67,7 +67,15 @@ class Tool(object):
             direction="Input"
         )
 
-        return [pointsParameter, rangeType, minRange, maxRange, mapParameter]
+        outputLayer = arcpy.Parameter(
+            displayName="Output Layer",
+            name="output_layer",
+            datatype="GPString",
+            parameterType="Required",
+            direction="Input"
+        )
+
+        return [pointsParameter, rangeType, minRange, maxRange, mapParameter, outputLayer]
 
     def isLicensed(self):
         """Set whether tool is licensed to execute."""
@@ -86,11 +94,16 @@ class Tool(object):
 
     def execute(self, parameters, messages):
         """The source code of the tool."""
+
+        # TODO: Handle the graphical meta-data
+
         points_layer = parameters[0].valueAsText
         range_type = parameters[1].valueAsText
         min_range = int(parameters[2].valueAsText)
         max_range = int(parameters[3].valueAsText)
         map_name = parameters[4].valueAsText 
+        output_layer = parameters[5].valueAsText
+
         workspace, dir = path.split(arcpy.env.workspace)
         if not dir.endswith('.gdb'):
             workspace = arcpy.env.workspace
@@ -98,21 +111,53 @@ class Tool(object):
         # get project resources
         proj = arcpy.mp.ArcGISProject("CURRENT")
         arcgis_map = list(filter(lambda map: map.name == map_name, proj.listMaps()))[0]
-        messages.addMessage("Finding point layer named  \"" + points_layer + "\"")
-        if '\\' in points_layer:
-            points_layer_name = points_layer.split('\\')[-1]
-        points_layer = list(filter(lambda layer: layer.name == points_layer_name, arcgis_map.listLayers()))[0]
 
-        # save as geojson
-        messages.addMessage(points_layer)
-        arcpy.conversion.FeaturesToJSON(points_layer, path.join(workspace, "point_layer.geojson"), geoJSON=True)
+        # Grab all points
+        cursor = arcpy.da.SearchCursor(points_layer, ["SHAPE@XY"], spatial_reference=arcpy.SpatialReference("WGS 1984"))
+        locations = []
+        for centroid in cursor:
+            lng, lat = centroid[0]
+            locations.append([lng, lat])
+        
+        # API call
 
-        # open the barrier layer
-        with open(path.join(workspace, "point_layer.geojson"), 'r', encoding='utf-8') as f:
-            feature_data = json.loads(f.read())
+        feature_collection = None
+        i = 0
+        while i < len(locations):
+            messages.addMessage("Collected " + str(i) + " out of " + str(len(locations)) + " points.")
+            data = {
+                "range": [min_range, max_range],
+                "locations": locations[i:i+2],
+                "range_type": range_type
+            }
+            response = requests.post('http://146.190.156.72:8080/ors/v2/isochrones/driving-car/geojson', data=json.dumps(data), headers={
+                'Content-Type': 'application/json; charset=utf-8',
+                'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8'
+            })
+            response_data = response.json()
+            if 'error' in response_data:
+                messages.addMessage("Error Encountered when calculating Isochrones:")
+                messages.addMessage(str(response_data))
 
-        messages.addMesage(feature_data)
+            if feature_collection == None:
+                feature_collection = response_data
+            else:
+                for feature in response_data['features']:
+                    feature_collection['features'].append(feature)
+            # Move i up by 2
+            i += 2
 
+        
+        output_path = path.join(arcpy.env.workspace, output_layer)
+        messages.addMessage(output_path)
+        messages.addMessage(output_path + ".geojson")
+        with open(path.join(workspace, output_layer) + ".geojson", "w+", encoding="utf-8") as f:
+            f.write(json.dumps(feature_collection))
+        
+        arcpy.conversion.JSONToFeatures(path.join(workspace, output_layer) + ".geojson", output_path, geometry_type="Polygon")
+        arcgis_map.addDataFromPath(output_path)
+
+        messages.addMessage("Isochrones layer created!")
         return
 
     def postExecute(self, parameters):
