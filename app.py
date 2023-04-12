@@ -1,5 +1,4 @@
 # Flask server to serve as an API
-import data # our custom wrapper for the ArcGIS APIs
 from flask import Flask, request, jsonify, render_template
 from directionAPI import route, routeWithoutPolygon
 
@@ -25,3 +24,7 @@ def findRouteFacilities():
     response = route(submit_data)
     return jsonify(response)
 
+#def findIsochrones():
+    #submit_data = request.get_json()
+    #resposne = isochrones(submit_data)
+    #return jsonify(response)

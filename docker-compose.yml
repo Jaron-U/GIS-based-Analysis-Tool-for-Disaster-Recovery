@@ -1,0 +1,7 @@
+# Docker compose
+version: 1.0
+services:
+  web-map:
+    image: .
+
+# TODO
