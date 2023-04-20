@@ -36,6 +36,7 @@ button:hover {
   background-color: rgb(139, 213, 135);
   border:2px solid rgb(139, 213, 135);
   border-radius:3px 3px 3px 3px;
+  cursor: pointer;
 }
 
 fieldset { 
@@ -75,6 +76,20 @@ footer {
     font-size: 20px;
 }
 
-#choosePointOrig, #choosePointDest, #getUser {
+#choosePointOrig, #choosePointDest, #getUser, #nameOrig, #nameDest {
     width: 85%;
+}
+
+#nameModal{
+  position: absolute;
+  padding: 10px;
+  top:50%;
+  left:25%;
+  background-color: #eeeeee;
+  border-style: solid;
+  border-color:rgb(53, 53, 53);
+  border-width: 2px;
+  width: 50%;
+  height: 200px;
+  z-index: 1001;
 }

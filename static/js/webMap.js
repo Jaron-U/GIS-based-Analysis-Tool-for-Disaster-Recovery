@@ -5,9 +5,54 @@ var jsonFeature
 var facilityRet
 var map
 
+const STATE = "oregon"
+
 document.addEventListener('DOMContentLoaded', bind)
 
+// https://wiki.openstreetmap.org/wiki/Nominatim
+const nominatimSearch = async (query, state) => {
+    const url = new URL("https://nominatim.openstreetmap.org/search");
+    url.searchParams.set("q", query);
+    url.searchParams.set("state", state);
+    url.searchParams.set("format", "jsonv2");
+    const response = await fetch(url.href).catch(err => {
+        alert("Error: when attempting to search by name!\nAre you connected to the internet?");
+        return {"error": true};
+    });
+    const jsonData = await response.json();
+    return jsonData;
+}
+
+// evil closure function, blame Milan
+const genQueryEventFn = (inputElementsIDs) => {
+    const queryEventFn = () => {
+        const query = document.getElementById("nameInput").textContent;
+        console.log("Query!")
+        nominatimSearch(query, STATE)
+            .then(data => {
+                const lat = data[0]['lat'];
+                const lng = data[0]['lon'];
+                document.getElementById(inputElementsIDs[0]).value = parseFloat(lat);
+                document.getElementById(inputElementsIDs[1]).value = parseFloat(lng);
+                document.getElementById("nameSubmit").removeEventListener('click', queryEventFn);
+                document.getElementById("nameModal").style.display = "none";
+            })
+            .catch(err => {
+                alert("Query ran into an error :(");
+                document.getElementById("nameSubmit").removeEventListener('click', queryEventFn);
+                document.getElementById("nameModal").style.display = "none";
+                console.log("[*]: ", err);
+            })
+    }
+    return queryEventFn;
+}
+
+
 function bind() {
+        // Hide Modal instantly
+        document.getElementById("nameModal").style.display = "none";
+
+
         //make sure bind function just run one time
         document.removeEventListener('DOMContentLoaded', bind);
         //init the map in the html page
@@ -84,6 +129,36 @@ function bind() {
             }
         });
 
+        /*
+            Search by name functionality
+        */
+        
+        const destSearchEventFn = genQueryEventFn(["destinationLat", "destinationLnt"]);
+        const origSearchEventFn = genQueryEventFn(["originLat", "originLnt"]);
+
+        document.getElementById("nameDest").addEventListener("click", () => {
+            // Prevent double-opening
+            if (document.getElementById("nameModal").style.display !== "none"){
+                return;
+            }
+            // 1. Open modal
+            document.getElementById("nameModal").style.display = "block";
+            // 2. Add query event
+            document.getElementById("nameSubmit").addEventListener("click", destSearchEventFn);
+        });
+
+        document.getElementById("nameOrig").addEventListener("click", () => {
+            // Prevent double-opening
+            if (document.getElementById("nameModal").style.display !== "none"){
+                return;
+            }
+            // 1. Open modal
+            document.getElementById("nameModal").style.display = "block";
+            // 2. Add query event
+            document.getElementById("nameSubmit").addEventListener("click", origSearchEventFn);
+        });
+
+
         //submit lister funtion 
         document.getElementById('submit').addEventListener('click', () => {
                 //get the service type
@@ -94,6 +169,9 @@ function bind() {
                 }
                 else if (serviceType === "facility") {
                         getFacility(L);
+                }
+                else if (serviceType === "isochrones") {
+                        getIsochrones(L);
                 }
         })
 }
@@ -143,6 +221,11 @@ function setPointOnMap(lat, lng, place){
     var popup = L.popup().setLatLng([lat, lng]).setContent(content);
     // bind the popup to the marker and open it
     marker.bindPopup(popup).openPopup();
+}
+
+
+async function getIsochrones(L){
+    // TODO
 }
 
 async function getFacility(L) {

@@ -24,6 +24,7 @@
                             <!-- Service selector -->
                             <option value="place">Directions to a place</option>
                             <option value="facility">Directions to a facility</option>
+                            <option value="isochrones">Isochrones Service</option>
                         </select>
                     </fieldset>
 
@@ -46,10 +47,11 @@
                                    placeholder="Ex: 123.23" />
                             <button type="button" id="getUser"> Use my position </button>
                             <button type="button" id="choosePointOrig"> Choose from map </button>
+                            <button type="button" id="nameOrig">Enter by name</button>
                         </p>
 
                         <div id="p2pInfo" style=""> <!-- point-to-point boxes (lng & lat) -->
-                            <p id="des"> Where do you need to go? </pid="des">
+                            <p id="des"> Where do you need to go? </p id="des">
                             <p>
                                 <label for="destinationLnt" class="required"> Longitude: </label>
                                 <input type="text"
@@ -63,6 +65,7 @@
                                        required
                                        placeholder="Ex: 123.23" />
                                 <button type="button" id="choosePointDest"> Choose from map </button>
+                                <button type="button" id="nameDest">Enter by name</button>
                             </p>
                         </div>
 
@@ -99,6 +102,12 @@
                 <div id="map"></div>
             </section>
         </main>
+
+        <div id="nameModal">
+            <h1>NAME MODAL</h1>
+            <input type="text" id="nameInput">
+            <button type="submit" id="nameSubmit">Search for location</button>
+        </div>
 
         <footer>
             <p><cite>&copy; 2023 GIS-Project</cite></p>
