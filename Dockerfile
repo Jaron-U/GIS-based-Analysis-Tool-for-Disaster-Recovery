@@ -1,5 +1,4 @@
-FROM python:3.9-slim-buster
-WORKDIR /usr/src/app
-COPY . .
-RUN pip3 install -r requirements.txt
-CMD ["python", "-m", "flask", "run"]
+FROM tiangolo/uwsgi-nginx-flask:python3.11
+COPY ./requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
+COPY . /app
