@@ -253,7 +253,8 @@ async function getRoute(L) {
         .then(data => {
                 console.log('Success:', data);
                 if (data['Error']){
-
+                    const errObj = JSON.parse(data['Error']);
+                    alert(errObj['error']['message']);
                 } else {
                     L.geoJSON(data).addTo(map);
                 }
