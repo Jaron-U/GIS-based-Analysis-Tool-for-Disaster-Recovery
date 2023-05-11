@@ -1,9 +1,13 @@
 'use strict'
 
 // use for receving the file content
-var jsonFeature
+const JSON_HAZARD_DATA = {
+    "type": "FeatureCollection",
+    "features":[]
+}
 var facilityRet
 var map
+var drawnItems = new L.FeatureGroup();
 
 document.addEventListener('DOMContentLoaded', bind)
 
@@ -18,7 +22,7 @@ function bind() {
         }).addTo(map);
         
         // Initialize the FeatureGroup to store drawn Items
-        var drawnItems = new L.FeatureGroup();
+        
         map.addLayer(drawnItems);
 
         // Set up the draw control
@@ -28,6 +32,8 @@ function bind() {
                 remove: true
             },
             draw: {
+                marker: false,
+                circlemarker: false,
                 polygon: {
                     allowIntersection: false,
                     drawError: {
@@ -48,8 +54,8 @@ function bind() {
 
             // Get GeoJSON of drawn polygon
             var geojson = drawnItems.toGeoJSON();
-            jsonFeature = geojson
-            console.log(JSON.stringify(geojson));
+            JSON_HAZARD_DATA.features = JSON_HAZARD_DATA.features.concat(geojson['features'])
+            //console.log(JSON.stringify(geojson));
         });
 
         //control the display contents according to the service type
@@ -65,9 +71,6 @@ function bind() {
                         document.getElementById('p2dInfo').style.display = ""
                 }
         })
-
-        //map click event handling
-        map.on('click', mapClick);
 
         document.getElementById("choosePointOrig").addEventListener('click', function () {
             document.getElementById("choosePointOrig").textContent = "Click where you are...";
@@ -100,8 +103,12 @@ function bind() {
                 var file = document.getElementById("uploadFile").files[0]
                 fReader.readAsText(file)
                 fReader.onload = function () {
-                        jsonFeature = JSON.parse(fReader.result)
-                        L.geoJSON(jsonFeature).addTo(map)
+                        let jsonFeature = JSON.parse(fReader.result)
+                        // add to global hazard object
+                        JSON_HAZARD_DATA.features = JSON_HAZARD_DATA.features.concat(jsonFeature['features'])
+
+                        // add feature to map
+                        L.geoJSON(jsonFeature).addTo(drawnItems)
                         //map.fitBounds(new L.featureGroup(jsonFeature.features[0].geometry.coordinates[0]).getBounds())
                         console.log(jsonFeature.features[0].geometry.coordinates[0])
                 }
@@ -120,7 +127,7 @@ function bind() {
         document.getElementById('submit').addEventListener('click', () => {
                 //get the service type
                 var serviceType = document.getElementById('service').value;
-                console.log(serviceType)
+                // console.log(serviceType)
                 if (serviceType === "place") {
                         getRoute(L);
                 }
@@ -128,11 +135,18 @@ function bind() {
                         getFacility(L);
                 }
         })
+        // delete logic
+        map.on('draw:deleted', function (e) {
+            JSON_HAZARD_DATA.features = [];
+            map.eachLayer(function (layer) {
+                if (layer instanceof L.Polygon) {
+                    var geojson = layer.toGeoJSON();
+                    JSON_HAZARD_DATA.features = JSON_HAZARD_DATA.features.concat(geojson['features']);
+                }
+            })
+        })
 }
 
-function mapClick(e) {
-    //console.log(e.latlng);
-}
 
 function mapClickOrigin(e) {
     map.off('click', mapClickOrigin);
@@ -164,10 +178,10 @@ function setPointOnMap(lat, lng, place){
     });
     if (place == "origin") {
         // create a marker at the user's location and add it to the map
-        marker = L.marker([lat, lng], {icon: greenIcon}).addTo(map);
+        marker = L.marker([lat, lng], {icon: greenIcon}).addTo(drawnItems);
         content = "you are here"
     }else {
-        marker = L.marker([lat, lng]).addTo(map);
+        marker = L.marker([lat, lng]).addTo(drawnItems);
         content = "you want to go here"
     }
     
@@ -184,17 +198,17 @@ async function getFacility(L) {
     var dFacility = document.getElementById('facilityIn').value;
 
     if (typeof document.getElementById('uploadFacFile').files[0] === 'undefined') {
-        console.log("searching for facilities")
-        facilityRet = dFacility //Should be a custom json segment here, maybe we'll get to it
+        // console.log("searching for facilities")
+        facilityRet = dFacility // Should be a custom json segment here, maybe we'll get to it
     }
 
     //convert the input data into json type
     const input_data = {
         stops: [[oLnt, oLat]],
         incidents: facilityRet,
-        hazards: jsonFeature
+        hazards: JSON_HAZARD_DATA
     };
-    console.log(input_data)
+    // console.log(input_data)
 
     //fetch the data from backend for facilities
     fetch('/route-to-facilities', {
@@ -205,13 +219,18 @@ async function getFacility(L) {
         }})
         .then(response => response.json())
         .then(data => {
-            console.log('Success:', data);
-            L.geoJSON(data.geojson).addTo(map);
+            //console.log('Success:', data);
+            L.geoJSON(data.geojson).addTo(drawnItems);
         })
         .catch((error) => {
             console.error('Error:', error);
         });
 }
+
+// stolen from https://htmlcolorcodes.com/
+const COLOR_CODES = [
+    "#ff5733", "#8e44ad", "#d35400", "#f1c40f", "#273746", "#e74c3c", "#138d75", "#99a3a4"
+]
 
 async function getRoute(L) {
         //get location info, and convert them to float type
@@ -219,12 +238,12 @@ async function getRoute(L) {
         var oLnt = parseFloat(document.getElementById('originLnt').value);
         var dLat = parseFloat(document.getElementById('destinationLat').value);
         var dLnt = parseFloat(document.getElementById('destinationLnt').value);
-        
+
+        let jsonFeature = JSON_HAZARD_DATA;
         //if user did not provide the polygon file, just return the route
-        if (jsonFeature == undefined){
+        if (JSON_HAZARD_DATA.features.length == 0){
                 jsonFeature = ""
         }
-
         //convert the input data into json type
         const input_data = {
                 stops: [
@@ -244,8 +263,18 @@ async function getRoute(L) {
         })
         .then(response => response.json())
         .then(data => {
-                console.log('Success:', data);
-                L.geoJSON(data).addTo(map);
+                // console.log('Success:', data);
+                if (data['Error']){
+                    const errObj = JSON.parse(data['Error']);
+                    alert(errObj['error']['message']);
+                } else {
+                    //drawnItems.add(L.geoJSON(data));
+                    L.geoJSON(data, {
+                        style: (feature) => {
+                            return {color: COLOR_CODES[Math.floor(Math.random()*COLOR_CODES.length)]}
+                        }
+                    }).addTo(drawnItems);
+                }
         })
         .catch((error) => {
                 console.error('Error:', error);
