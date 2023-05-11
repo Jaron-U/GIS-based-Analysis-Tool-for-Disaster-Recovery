@@ -1,7 +1,10 @@
 'use strict'
 
 // use for receving the file content
-var jsonFeature
+const JSON_HAZARD_DATA = {
+    "type": "FeatureCollection",
+    "features":[]
+}
 var facilityRet
 var map
 
@@ -48,8 +51,9 @@ function bind() {
 
             // Get GeoJSON of drawn polygon
             var geojson = drawnItems.toGeoJSON();
-            jsonFeature = geojson
-            console.log(JSON.stringify(geojson));
+
+            JSON_HAZARD_DATA.features.concat(geojson['features'])
+            //console.log(JSON.stringify(geojson));
         });
 
         //control the display contents according to the service type
@@ -100,7 +104,10 @@ function bind() {
                 var file = document.getElementById("uploadFile").files[0]
                 fReader.readAsText(file)
                 fReader.onload = function () {
-                        jsonFeature = JSON.parse(fReader.result)
+                        let jsonFeature = JSON.parse(fReader.result)
+                        // add to global hazard object
+                        JSON_HAZARD_DATA.features.concat(jsonFeature['features'])
+                        // add feature to map
                         L.geoJSON(jsonFeature).addTo(map)
                         //map.fitBounds(new L.featureGroup(jsonFeature.features[0].geometry.coordinates[0]).getBounds())
                         console.log(jsonFeature.features[0].geometry.coordinates[0])
@@ -120,7 +127,7 @@ function bind() {
         document.getElementById('submit').addEventListener('click', () => {
                 //get the service type
                 var serviceType = document.getElementById('service').value;
-                console.log(serviceType)
+                // console.log(serviceType)
                 if (serviceType === "place") {
                         getRoute(L);
                 }
@@ -184,7 +191,7 @@ async function getFacility(L) {
     var dFacility = document.getElementById('facilityIn').value;
 
     if (typeof document.getElementById('uploadFacFile').files[0] === 'undefined') {
-        console.log("searching for facilities")
+        // console.log("searching for facilities")
         facilityRet = dFacility //Should be a custom json segment here, maybe we'll get to it
     }
 
@@ -192,9 +199,9 @@ async function getFacility(L) {
     const input_data = {
         stops: [[oLnt, oLat]],
         incidents: facilityRet,
-        hazards: jsonFeature
+        hazards: JSON_HAZARD_DATA
     };
-    console.log(input_data)
+    // console.log(input_data)
 
     //fetch the data from backend for facilities
     fetch('/route-to-facilities', {
@@ -205,7 +212,7 @@ async function getFacility(L) {
         }})
         .then(response => response.json())
         .then(data => {
-            console.log('Success:', data);
+            //console.log('Success:', data);
             L.geoJSON(data.geojson).addTo(map);
         })
         .catch((error) => {
@@ -219,9 +226,10 @@ async function getRoute(L) {
         var oLnt = parseFloat(document.getElementById('originLnt').value);
         var dLat = parseFloat(document.getElementById('destinationLat').value);
         var dLnt = parseFloat(document.getElementById('destinationLnt').value);
-        
+
+        let jsonFeature = JSON_HAZARD_DATA;
         //if user did not provide the polygon file, just return the route
-        if (jsonFeature == undefined){
+        if (JSON_HAZARD_DATA.features.length == 0){
                 jsonFeature = ""
         }
 
