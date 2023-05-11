@@ -142,9 +142,15 @@ function bind() {
                 return;
             }
             // 1. Open modal
-            document.getElementById("nameModal").style.display = "block";
+            document.getElementById("nameModal").style.display = "grid";
             // 2. Add query event
             document.getElementById("nameSubmit").addEventListener("click", destSearchEventFn);
+            // 3. Add cancel event
+            document.getElementById('exitModal').addEventListener("click", () => {
+                // remove event listeners
+                document.getElementById("nameSubmit").removeEventListener('click', destSearchEventFn);
+                document.getElementById("nameModal").style.display = "none";
+            })
         });
 
         document.getElementById("nameOrig").addEventListener("click", () => {
@@ -153,9 +159,15 @@ function bind() {
                 return;
             }
             // 1. Open modal
-            document.getElementById("nameModal").style.display = "block";
+            document.getElementById("nameModal").style.display = "grid";
             // 2. Add query event
             document.getElementById("nameSubmit").addEventListener("click", origSearchEventFn);
+            // 3. Add cancel event
+            document.getElementById('exitModal').addEventListener("click", () => {
+                // remove event listeners
+                document.getElementById("nameSubmit").removeEventListener('click', origSearchEventFn);
+                document.getElementById("nameModal").style.display = "none";
+            })
         });
 
 

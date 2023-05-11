@@ -82,6 +82,9 @@ footer {
 
 #nameModal{
   position: absolute;
+  display: grid;
+  justify-items:center;
+  text-align: left;
   padding: 10px;
   top:50%;
   left:25%;
@@ -90,6 +93,10 @@ footer {
   border-color:rgb(53, 53, 53);
   border-width: 2px;
   width: 50%;
-  height: 200px;
+  height: 250px;
   z-index: 1001;
+}
+
+#nameInput, #nameSubmit, #exitModal {
+  width: 95%;
 }
