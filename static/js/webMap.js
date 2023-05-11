@@ -16,6 +16,41 @@ function bind() {
                 maxZoom: 19,
                 attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(map);
+        
+        // Initialize the FeatureGroup to store drawn Items
+        var drawnItems = new L.FeatureGroup();
+        map.addLayer(drawnItems);
+
+        // Set up the draw control
+        var drawControl = new L.Control.Draw({
+            edit: {
+                featureGroup: drawnItems,
+                remove: true
+            },
+            draw: {
+                polygon: {
+                    allowIntersection: false,
+                    drawError: {
+                        color: '#b00b00',
+                        message: '<strong>Error:</strong> Cannot intersect!'
+                    },
+                    shapeOptions: {
+                        color: '#ff3381'
+                    }
+                }
+            }
+        });
+        map.addControl(drawControl);
+
+        map.on('draw:created', function (e) {
+            var layer = e.layer;
+            drawnItems.addLayer(layer);
+
+            // Get GeoJSON of drawn polygon
+            var geojson = drawnItems.toGeoJSON();
+            jsonFeature = geojson
+            console.log(JSON.stringify(geojson));
+        });
 
         //control the display contents according to the service type
         document.getElementById('p2dInfo').style.display = "none"
@@ -78,9 +113,6 @@ function bind() {
             fReader.readAsText(file)
             fReader.onload = function () {
                 facilityRet = JSON.parse(fReader.result)
-                //L.geoJSON(facilityRet).addTo(map)
-                //map.fitBounds(new L.featureGroup(jsonFeature.features[0].geometry.coordinates[0]).getBounds())
-                //console.log(facilityRet.features[0].geometry.coordinates[0])
             }
         });
 
