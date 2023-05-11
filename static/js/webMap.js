@@ -72,9 +72,6 @@ function bind() {
                 }
         })
 
-        //map click event handling
-        map.on('click', mapClick);
-
         document.getElementById("choosePointOrig").addEventListener('click', function () {
             document.getElementById("choosePointOrig").textContent = "Click where you are...";
             map.on('click', mapClickOrigin);
@@ -138,11 +135,18 @@ function bind() {
                         getFacility(L);
                 }
         })
+        // delete logic
+        map.on('draw:deleted', function (e) {
+            JSON_HAZARD_DATA.features = [];
+            map.eachLayer(function (layer) {
+                if (layer instanceof L.Polygon) {
+                    var geojson = layer.toGeoJSON();
+                    JSON_HAZARD_DATA.features = JSON_HAZARD_DATA.features.concat(geojson['features']);
+                }
+            })
+        })
 }
 
-function mapClick(e) {
-    //console.log(e.latlng);
-}
 
 function mapClickOrigin(e) {
     map.off('click', mapClickOrigin);
@@ -259,7 +263,7 @@ async function getRoute(L) {
         })
         .then(response => response.json())
         .then(data => {
-                console.log('Success:', data);
+                // console.log('Success:', data);
                 if (data['Error']){
                     const errObj = JSON.parse(data['Error']);
                     alert(errObj['error']['message']);
