@@ -51,8 +51,7 @@ function bind() {
 
             // Get GeoJSON of drawn polygon
             var geojson = drawnItems.toGeoJSON();
-
-            JSON_HAZARD_DATA.features.concat(geojson['features'])
+            JSON_HAZARD_DATA.features = JSON_HAZARD_DATA.features.concat(geojson['features'])
             //console.log(JSON.stringify(geojson));
         });
 
@@ -106,7 +105,8 @@ function bind() {
                 fReader.onload = function () {
                         let jsonFeature = JSON.parse(fReader.result)
                         // add to global hazard object
-                        JSON_HAZARD_DATA.features.concat(jsonFeature['features'])
+                        JSON_HAZARD_DATA.features = JSON_HAZARD_DATA.features.concat(geojson['features'])
+
                         // add feature to map
                         L.geoJSON(jsonFeature).addTo(map)
                         //map.fitBounds(new L.featureGroup(jsonFeature.features[0].geometry.coordinates[0]).getBounds())
@@ -232,7 +232,6 @@ async function getRoute(L) {
         if (JSON_HAZARD_DATA.features.length == 0){
                 jsonFeature = ""
         }
-
         //convert the input data into json type
         const input_data = {
                 stops: [
