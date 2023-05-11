@@ -105,7 +105,7 @@ function bind() {
                 fReader.onload = function () {
                         let jsonFeature = JSON.parse(fReader.result)
                         // add to global hazard object
-                        JSON_HAZARD_DATA.features = JSON_HAZARD_DATA.features.concat(geojson['features'])
+                        JSON_HAZARD_DATA.features = JSON_HAZARD_DATA.features.concat(jsonFeature['features'])
 
                         // add feature to map
                         L.geoJSON(jsonFeature).addTo(map)
@@ -252,7 +252,11 @@ async function getRoute(L) {
         .then(response => response.json())
         .then(data => {
                 console.log('Success:', data);
-                L.geoJSON(data).addTo(map);
+                if (data['Error']){
+
+                } else {
+                    L.geoJSON(data).addTo(map);
+                }
         })
         .catch((error) => {
                 console.error('Error:', error);
