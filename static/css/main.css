@@ -4,6 +4,7 @@ body {
     margin-top: 0vw;
     margin-bottom: 6vw;
     max-width: 1500pt;
+    height: 100%;
 }
 
 article {
@@ -17,12 +18,12 @@ div {
   margin-bottom: 6%;
 }
 
-button, input, select{
+button, input, select {
     font-size:110%;
     padding:1%;
     margin-top: 1%;
     margin-left: 1%;
-  }
+}
 
 button {
     font-size: 20px;
@@ -51,10 +52,14 @@ footer {
 
 #map {
     margin-top: 5%;
-    height: 800px;
+    height: 1000px;
     width: 1000px auto;
     /* border: 2px solid rgb(63, 63, 63); */
     margin: 20px;
+}
+
+#submit {
+    background: rgb(255, 200, 200);
 }
 
 #title {

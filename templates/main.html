@@ -77,9 +77,7 @@
                                 <label for="uploadFacFile" class="required"> Provide a json list of viable locations: </label>
                                 <input type="file" id="uploadFacFile" multiple>
                                 <br />
-                                <br />
                                 <p> -OR- </p>
-                                <br />
                                 <label for="facilityIn" class="required"> Input a facility to plot towards: <br /> </label>
                                 <input type="text"
                                        name="facilityLabel" id="facilityIn"
@@ -90,8 +88,19 @@
                     </fieldset>
 
                     <fieldset>
-                        <legend id="secTitle">Extra hazard information to include in this calculation: </legend>
+                        <legend id="secTitle">Hazard information to include </legend>
+                        <label for="uploadFile" class="required"> Provide a geojson perimeter file: </label>
                         <input type="file" id="uploadFile" multiple>
+                        <br />
+                        <p> -OR- </p>
+                        <legend id="secTitle">Add a hazard layer: </legend>
+                        <select name="hazard-menu" id="hazards">
+                            <!-- Hazard preset selector -->
+                            <option value="default">-None-</option>
+                            <option value="temp1">Template Damage to Portland</option>
+                            <option value="fire1">Fire Operations priority areas</option>
+                            <option value="slide1">DOGAMI Landslide susceptible areas</option>
+                        </select>
                     </fieldset>
 
                     <p>

@@ -12,141 +12,178 @@ var drawnItems = new L.FeatureGroup();
 document.addEventListener('DOMContentLoaded', bind)
 
 function bind() {
-        //make sure bind function just run one time
-        document.removeEventListener('DOMContentLoaded', bind);
-        //init the map in the html page
-        map = L.map('map').setView([44.5, -123.2], 10);
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        }).addTo(map);
+    //make sure bind function just run one time
+    document.removeEventListener('DOMContentLoaded', bind);
+    //init the map in the html page
+    map = L.map('map').setView([44.5, -123.2], 10);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
         
-        // Initialize the FeatureGroup to store drawn Items
+    // Initialize the FeatureGroup to store drawn Items
         
-        map.addLayer(drawnItems);
+    map.addLayer(drawnItems);
 
-        // Set up the draw control
-        var drawControl = new L.Control.Draw({
-            edit: {
-                featureGroup: drawnItems,
-                remove: true
-            },
-            draw: {
-                marker: false,
-                circlemarker: false,
-                polygon: {
-                    allowIntersection: false,
-                    drawError: {
-                        color: '#b00b00',
-                        message: '<strong>Error:</strong> Cannot intersect!'
-                    },
-                    shapeOptions: {
-                        color: '#ff3381'
-                    }
+    // Set up the draw control
+    var drawControl = new L.Control.Draw({
+        edit: {
+            featureGroup: drawnItems,
+            remove: true
+        },
+        draw: {
+            marker: false,
+            circlemarker: false,
+            polygon: {
+                allowIntersection: false,
+                drawError: {
+                    color: '#b00b00',
+                    message: '<strong>Error:</strong> Cannot intersect!'
+                },
+                shapeOptions: {
+                    color: '#ff3381'
                 }
             }
-        });
-        map.addControl(drawControl);
+        }
+    });
+    map.addControl(drawControl);
 
-        map.on('draw:created', function (e) {
-            var layer = e.layer;
-            drawnItems.addLayer(layer);
+    map.on('draw:created', function (e) {
+        var layer = e.layer;
+        drawnItems.addLayer(layer);
 
-            // Get GeoJSON of drawn polygon
-            var geojson = drawnItems.toGeoJSON();
-            JSON_HAZARD_DATA.features = JSON_HAZARD_DATA.features.concat(geojson['features'])
-            //console.log(JSON.stringify(geojson));
-        });
+        // Get GeoJSON of drawn polygon
+        var geojson = drawnItems.toGeoJSON();
+        JSON_HAZARD_DATA.features = JSON_HAZARD_DATA.features.concat(geojson['features'])
+        //console.log(JSON.stringify(geojson));
+    });
 
-        //control the display contents according to the service type
-        document.getElementById('p2dInfo').style.display = "none"
-        document.getElementById("service").addEventListener("change", function () {
-                var serviceType = document.getElementById("service").value
-                if (serviceType == "place") {
-                        document.getElementById('p2dInfo').style.display = "none"
-                        document.getElementById('p2pInfo').style.display = ""
-                }
-                if (serviceType == "facility") {
-                        document.getElementById('p2pInfo').style.display = "none"
-                        document.getElementById('p2dInfo').style.display = ""
-                }
-        })
+    //control the display contents according to the service type
+    document.getElementById('p2dInfo').style.display = "none";
+    document.getElementById("service").addEventListener("change", function () {
+        var serviceType = document.getElementById("service").value
+        if (serviceType == "place") {
+            document.getElementById('p2dInfo').style.display = "none"
+            document.getElementById('p2pInfo').style.display = ""
+        }
+        if (serviceType == "facility") {
+            document.getElementById('p2pInfo').style.display = "none"
+            document.getElementById('p2dInfo').style.display = ""
+        }
+    });
+        
+    //controller for the hazard preset layer (ADD MORE OPTIONS BELOW IF YOU HAVE 'EM)
+    document.getElementById("hazards").addEventListener("change", function () {
+        var fReader = new FileReader();
 
-        document.getElementById("choosePointOrig").addEventListener('click', function () {
-            document.getElementById("choosePointOrig").textContent = "Click where you are...";
-            map.on('click', mapClickOrigin);
-        });
+        var hazardType = document.getElementById("hazards").value
+        if (hazardType == "default") {
+            console.log("none");
+        }
+        if (hazardType == "temp1") {
+            console.log("temp1"); //Current system uses externally stored files, this is a template
+            fetch('https://raw.githubusercontent.com/johnkcOSU/test-repo/5299f19b67417c36e5b3823ecfade00f9000f396/PresetHazards/templatetester.geojson')
+                .then(res => res.json()) //Turn response to raw JSON
+                .then(jsonRes => displayGJSONRaw(jsonRes))
+        }
+        if (hazardType == "fire1") {
+            console.log("fire1");
+            fetch('https://raw.githubusercontent.com/johnkcOSU/test-repo/main/PresetHazards/BLM_Natl_WesternUS_FIAT_Fire_Operations_Priority_Areas_2015_Polygon.geojson')
+                .then(res => res.json())
+                .then(jsonRes => displayGJSONRaw(jsonRes))
+        }
+        if (hazardType == "slide1") {
+            console.log("slide1");
+            fetch('https://raw.githubusercontent.com/johnkcOSU/test-repo/main/PresetHazards/landslide%20susceptibility.geojson')
+                .then(res => res.json())
+                .then(jsonRes => displayGJSONRaw(jsonRes))
+        }
+    });
+        
+    //map to-and-from point selector reactions
+    document.getElementById("choosePointOrig").addEventListener('click', function () {
+        document.getElementById("choosePointOrig").textContent = "Click where you are...";
+        map.on('click', mapClickOrigin);
+    });
 
-        document.getElementById("choosePointDest").addEventListener('click', function () {
-            document.getElementById("choosePointDest").textContent = "Click where you need to go...";
-            map.on('click', mapClickDestination);
-        });
+    document.getElementById("choosePointDest").addEventListener('click', function () {
+        document.getElementById("choosePointDest").textContent = "Click where you need to go...";
+        map.on('click', mapClickDestination);
+    });
 
-        //handle user own-location request
-        document.getElementById("getUser").addEventListener('click', function () {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(pos) {
-                    var lat = document.getElementById('originLat').value = parseFloat(pos.coords.latitude);
-                    var lng = document.getElementById('originLnt').value = parseFloat(pos.coords.longitude);
-                    setPointOnMap(lat, lng, "origin")
-                    // set the map view to the user's location
-                    map.setView([lat, lng], 15);
-                });
-            } else {
-                alert("Not supported, sorry!");
+    //handle user own-location request
+    document.getElementById("getUser").addEventListener('click', function () {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(pos) {
+                var lat = document.getElementById('originLat').value = parseFloat(pos.coords.latitude);
+                var lng = document.getElementById('originLnt').value = parseFloat(pos.coords.longitude);
+                setPointOnMap(lat, lng, "origin")
+                // set the map view to the user's location
+                map.setView([lat, lng], 15);
+            });
+        } else {
+            alert("Not supported, sorry!");
+        }
+    });
+
+    //visualize hazard data on the map when it's added
+    document.getElementById("uploadFile").addEventListener("change", function () {
+        var fReader = new FileReader();
+        var file = document.getElementById("uploadFile").files[0]
+        console.log(file)
+        fReader.readAsText(file)
+        fReader.onload = function () {
+            let jsonFeature = JSON.parse(fReader.result)
+            // add to global hazard object
+            JSON_HAZARD_DATA.features = JSON_HAZARD_DATA.features.concat(jsonFeature['features'])
+
+            // add feature to map
+            L.geoJSON(jsonFeature).addTo(drawnItems)
+            //map.fitBounds(new L.featureGroup(jsonFeature.features[0].geometry.coordinates[0]).getBounds())
+            console.log(jsonFeature.features[0].geometry.coordinates[0])
+        }
+    });
+
+    document.getElementById("uploadFacFile").addEventListener("change", function () {
+        var fReader = new FileReader();
+        var file = document.getElementById("uploadFacFile").files[0]
+        fReader.readAsText(file)
+        fReader.onload = function () {
+            facilityRet = JSON.parse(fReader.result)
+        }
+    });
+
+    //submit lister funtion 
+    document.getElementById('submit').addEventListener('click', () => {
+        //get the service type
+        var serviceType = document.getElementById('service').value;
+        // console.log(serviceType)
+        if (serviceType === "place") {
+            getRoute(L);
+        }
+        else if (serviceType === "facility") {
+            getFacility(L);
+        }
+    })
+
+    // draw delete logic
+    map.on('draw:deleted', function (e) {
+        JSON_HAZARD_DATA.features = [];
+        map.eachLayer(function (layer) {
+            if (layer instanceof L.Polygon) {
+                var geojson = layer.toGeoJSON();
+                JSON_HAZARD_DATA.features = JSON_HAZARD_DATA.features.concat(geojson['features']);
             }
-        });
-
-        //visualize hazard data on the map when it's added
-        document.getElementById("uploadFile").addEventListener("change", function () {
-                var fReader = new FileReader();
-                var file = document.getElementById("uploadFile").files[0]
-                fReader.readAsText(file)
-                fReader.onload = function () {
-                        let jsonFeature = JSON.parse(fReader.result)
-                        // add to global hazard object
-                        JSON_HAZARD_DATA.features = JSON_HAZARD_DATA.features.concat(jsonFeature['features'])
-
-                        // add feature to map
-                        L.geoJSON(jsonFeature).addTo(drawnItems)
-                        //map.fitBounds(new L.featureGroup(jsonFeature.features[0].geometry.coordinates[0]).getBounds())
-                        console.log(jsonFeature.features[0].geometry.coordinates[0])
-                }
-        });
-
-        document.getElementById("uploadFacFile").addEventListener("change", function () {
-            var fReader = new FileReader();
-            var file = document.getElementById("uploadFacFile").files[0]
-            fReader.readAsText(file)
-            fReader.onload = function () {
-                facilityRet = JSON.parse(fReader.result)
-            }
-        });
-
-        //submit lister funtion 
-        document.getElementById('submit').addEventListener('click', () => {
-                //get the service type
-                var serviceType = document.getElementById('service').value;
-                // console.log(serviceType)
-                if (serviceType === "place") {
-                        getRoute(L);
-                }
-                else if (serviceType === "facility") {
-                        getFacility(L);
-                }
         })
-        // delete logic
-        map.on('draw:deleted', function (e) {
-            JSON_HAZARD_DATA.features = [];
-            map.eachLayer(function (layer) {
-                if (layer instanceof L.Polygon) {
-                    var geojson = layer.toGeoJSON();
-                    JSON_HAZARD_DATA.features = JSON_HAZARD_DATA.features.concat(geojson['features']);
-                }
-            })
-        })
+    })
 }
 
+//display and prepare (currently) preset hazard geojson
+function displayGJSONRaw(rawFile) {
+    console.log(rawFile);
+    L.geoJSON(rawFile).addTo(map);
+    JSON_HAZARD_DATA.features = JSON_HAZARD_DATA.features.concat(rawFile['features'])
+}
 
 function mapClickOrigin(e) {
     map.off('click', mapClickOrigin);
