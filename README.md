@@ -1,14 +1,7 @@
 # GIS-based-Analysis-Tool-for-Disaster-Recovery
-This project involves the creation of GIS tools to analysis community preparedness for disasters to identify vulnerabilities for planning purposes. Specifically, the students will use python and other scripting tools to analysis geospatial datasets to identify critical pieces of infrastructure that must be bolstered and strengthened to improve community resilience and recovery after disasters.
 
-## Project Layout
-Our API-interfacing code is located under `data`.  Our server-side API is in `app.py`.
+The project, GIS-based Analysis Tool for Disaster Recovery, references a tool-set of software interfaces which have been developed by us to help Emergency Managers in planning recovery efforts and forming evacuation plans in the event of and in preparation for a natural disaster.  The tool-set includes multiple ArcGIS Pro Toolboxes for GIS experts to extend their tool-chains in their analysis of natural disasters, as well as a stand-alone web-map for all to use in calculating routes that avoid geographic hazards.
 
-
-## Objectives
-The deliverable is a suite of ArCGIS toolkits that enable specialized operations upon multiple heterogenous datasets. The datasets are already collected, and the team will focus on user interfaces to enable users to perform basic geospatial operations upon. A particular focus will also be on developing novel user interaction capabilities by providing users the ability to interact with the data using tangible interfaces such as AR markers and augmented reality sandboxes.
-
-## Motivations
-The frequency of natural disasters has been on the uptick with catastrophic consequences for vulnerable communities. mitigating the impact of these disasters requires comprehensive analysis of a community's assets to identify critical points of failure - such as critical bridges for evacuation, low-lying regions vulnerable to flooding etc. This enables the efficient allocation of resource pre-disaster to improve that community's resilience.
-
-Origin project intro: https://eecs.oregonstate.edu/capstone/submission/pages/viewSingleProject.php?id=YAseza9mPsiwrZpo
+## Repository Layout
+- Toolboxes are located in `gis/toolboxes`
+- Web-map code is located in the root directory.
