@@ -23,6 +23,19 @@ Then, navigate to the RouteAPI Python Toolbox to access the Closest Facilities T
 
 This will then add the toolbox to your ArcGIS Pro project and can be accessible under the "catalog" widget.
 
+## Locally testing the Web-Map
+To run the web-map locally:
+
+1. Install dependencies
+```
+pip install -r requirements.txt
+```
+
+2. Run flask
+```flask run```
+
+And that should run the service! (Note: you may also want to change the API endpoints used in `directionsAPI.py` as they currently reference our deployed instance of the open-routing-service which is liable to go offline in the future.)
+
 ## Deploying the Web-Map
 Copied from our [wiki](https://github.com/Jaron-U/GIS-based-Analysis-Tool-for-Disaster-Recovery/wiki/Guide:-Deploying-Services):
 
