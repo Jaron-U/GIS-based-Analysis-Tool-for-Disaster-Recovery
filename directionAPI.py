@@ -2,12 +2,11 @@
 # Example which will find the directions between two points using
 # the ArcGIS route API.
 
-import requests  # sorry that I keep commenting this out. There's some kind of disjoint between my environment and yours that means I can't run flask without removing this line
+import requests
 import json
 
 token = 'AAPKed0344fad75a47759b9659eae86034daRZO9WuLRC0mwoydQIcZg3E41PAlD6vFtpsUi9cHIw2i7IQUmrjtq8aYyrPZgK2tp'
 
-# api='https://route.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World/solve?'
 api = "https://route-api.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World/solve?<parameters>"
 
 # set the geojson style
