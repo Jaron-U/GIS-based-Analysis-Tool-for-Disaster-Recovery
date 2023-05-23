@@ -32,7 +32,9 @@ pip install -r requirements.txt
 ```
 
 2. Run flask
-```flask run```
+```
+flask run
+```
 
 And that should run the service! (Note: you may also want to change the API endpoints used in `directionsAPI.py` as they currently reference our deployed instance of the open-routing-service which is liable to go offline in the future.)
 
