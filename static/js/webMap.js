@@ -139,8 +139,6 @@ function bind() {
 
             // add feature to map
             L.geoJSON(jsonFeature).addTo(drawnItems)
-            //map.fitBounds(new L.featureGroup(jsonFeature.features[0].geometry.coordinates[0]).getBounds())
-            console.log(jsonFeature.features[0].geometry.coordinates[0])
         }
     });
 
@@ -235,7 +233,6 @@ async function getFacility(L) {
     var dFacility = document.getElementById('facilityIn').value;
 
     if (typeof document.getElementById('uploadFacFile').files[0] === 'undefined') {
-        // console.log("searching for facilities")
         facilityRet = dFacility // Should be a custom json segment here, maybe we'll get to it
     }
 
@@ -245,7 +242,6 @@ async function getFacility(L) {
         incidents: facilityRet,
         hazards: JSON_HAZARD_DATA
     };
-    // console.log(input_data)
 
     //fetch the data from backend for facilities
     fetch('/route-to-facilities', {
@@ -300,12 +296,10 @@ async function getRoute(L) {
         })
         .then(response => response.json())
         .then(data => {
-                // console.log('Success:', data);
                 if (data['Error']){
                     const errObj = JSON.parse(data['Error']);
                     alert(errObj['error']['message']);
                 } else {
-                    //drawnItems.add(L.geoJSON(data));
                     L.geoJSON(data, {
                         style: (feature) => {
                             return {color: COLOR_CODES[Math.floor(Math.random()*COLOR_CODES.length)]}
