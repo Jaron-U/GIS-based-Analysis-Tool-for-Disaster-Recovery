@@ -23,9 +23,7 @@ templateDict = {
     }]
 }
 
-# setup request parameters
-
-
+# setup request parameter
 def getResponse(start, end):
     # Documentation on API parameters here: https://developers.arcgis.com/rest/network/api-reference/route-synchronous-service.htm#ESRI_SECTION2_C85EFA22DE5B48F3BE72E629EAB9049B
     parameters = {
@@ -83,10 +81,8 @@ def convertResponse(response):
 
     return dict
 
-
+# get route
 def route(data):
-    #start = "{},{}".format(data["stops"][0][0], data["stops"][0][1])
-    #end = "{},{}".format(data["stops"][1][0], data["stops"][1][1])
     start = (data["stops"][0][0], data["stops"][0][1])
     end = (data["stops"][1][0], data["stops"][1][1])
     response = getResponseORS(start, end, data["hazards"])
